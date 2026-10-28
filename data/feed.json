@@ -1,0 +1,214 @@
+{
+ "version": 1,
+ "source": "QuikStrike via qs-archive",
+ "underlying": "OGZ6",
+ "expiration": "2026-11-24",
+ "today": {
+  "date": "2026-10-27",
+  "settle": 4074.6,
+  "iv": 20.23,
+  "dte": 29,
+  "sd_day": 33.6,
+  "sd_day_src": "G4WV6",
+  "stats": {
+   "iv": {
+    "mp": 4250,
+    "pcr": 0.306,
+    "tc": 351201,
+    "tp": 107450,
+    "hasPrev": true,
+    "callWalls": [
+     {
+      "strike": 4500,
+      "oi": 10579,
+      "d": 86,
+      "rank": 1
+     },
+     {
+      "strike": 4400,
+      "oi": 4172,
+      "d": 192,
+      "rank": 2
+     },
+     {
+      "strike": 4200,
+      "oi": 4007,
+      "d": 154,
+      "rank": 3
+     }
+    ],
+    "putWalls": [
+     {
+      "strike": 3900,
+      "oi": 5512,
+      "d": 39,
+      "rank": 1
+     },
+     {
+      "strike": 4000,
+      "oi": 5121,
+      "d": -29,
+      "rank": 2
+     },
+     {
+      "strike": 3700,
+      "oi": 4968,
+      "d": 97,
+      "rank": 3
+     }
+    ]
+   },
+   "straddle": {
+    "mp": 4250,
+    "pcr": 0.306,
+    "tc": 351201,
+    "tp": 107450,
+    "hasPrev": true,
+    "callWalls": [
+     {
+      "strike": 4500,
+      "oi": 10579,
+      "d": 86,
+      "rank": 1
+     },
+     {
+      "strike": 4400,
+      "oi": 4172,
+      "d": 192,
+      "rank": 2
+     },
+     {
+      "strike": 4200,
+      "oi": 4007,
+      "d": 154,
+      "rank": 3
+     }
+    ],
+    "putWalls": [
+     {
+      "strike": 3900,
+      "oi": 5512,
+      "d": 39,
+      "rank": 1
+     },
+     {
+      "strike": 4000,
+      "oi": 5121,
+      "d": -29,
+      "rank": 2
+     },
+     {
+      "strike": 3700,
+      "oi": 4968,
+      "d": 97,
+      "rank": 3
+     }
+    ]
+   }
+  }
+ },
+ "prev": {
+  "date": "2026-10-26",
+  "settle": 4038.4,
+  "iv": 20.59,
+  "dte": 30,
+  "sd_day": 37.5,
+  "sd_day_src": "OGX6",
+  "stats": {
+   "iv": {
+    "mp": 4260,
+    "pcr": 0.3059,
+    "tc": 350077,
+    "tp": 107105,
+    "hasPrev": false,
+    "callWalls": [
+     {
+      "strike": 4500,
+      "oi": 10493,
+      "d": null,
+      "rank": 1
+     },
+     {
+      "strike": 4400,
+      "oi": 3980,
+      "d": null,
+      "rank": 2
+     },
+     {
+      "strike": 4200,
+      "oi": 3853,
+      "d": null,
+      "rank": 3
+     }
+    ],
+    "putWalls": [
+     {
+      "strike": 3900,
+      "oi": 5473,
+      "d": null,
+      "rank": 1
+     },
+     {
+      "strike": 4000,
+      "oi": 5150,
+      "d": null,
+      "rank": 2
+     },
+     {
+      "strike": 3700,
+      "oi": 4871,
+      "d": null,
+      "rank": 3
+     }
+    ]
+   },
+   "straddle": {
+    "mp": 4260,
+    "pcr": 0.3059,
+    "tc": 350077,
+    "tp": 107105,
+    "hasPrev": false,
+    "callWalls": [
+     {
+      "strike": 4500,
+      "oi": 10493,
+      "d": null,
+      "rank": 1
+     },
+     {
+      "strike": 4400,
+      "oi": 3980,
+      "d": null,
+      "rank": 2
+     },
+     {
+      "strike": 4200,
+      "oi": 3853,
+      "d": null,
+      "rank": 3
+     }
+    ],
+    "putWalls": [
+     {
+      "strike": 3900,
+      "oi": 5473,
+      "d": null,
+      "rank": 1
+     },
+     {
+      "strike": 4000,
+      "oi": 5150,
+      "d": null,
+      "rank": 2
+     },
+     {
+      "strike": 3700,
+      "oi": 4871,
+      "d": null,
+      "rank": 3
+     }
+    ]
+   }
+  }
+ }
+}
