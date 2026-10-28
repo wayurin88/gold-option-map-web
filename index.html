@@ -104,6 +104,7 @@ details.prev table{margin-top:8px}
     </div>
     <div class="row">
       <span class="tag sample" id="srcTag">ข้อมูลตัวอย่าง</span>
+      <span class="tag" id="basisTag" hidden title="ใส่ Basis (ดูได้จากแถว Basis ในตาราง GOM Plan บน TradingView) เพื่อแสดงเป็นราคา XAUUSD">ยังไม่ใส่ Basis: ราคาเป็นหน่วยฟิวเจอร์ส TradingView แปลงเอง</span>
       <div class="seg" role="group" aria-label="หน่วยราคา">
         <button type="button" id="uXau" aria-pressed="true">XAUUSD</button>
         <button type="button" id="uFut" aria-pressed="false">ฟิวเจอร์ส GC</button>
@@ -137,7 +138,7 @@ details.prev table{margin-top:8px}
         <button type="button" id="bSample">โหลดตัวอย่าง</button>
       </div>
       <p class="hint">Straddle รายวัน = ค่า SD เดียวกับการ์ด Telegram ของ qs-archive (straddle ของซีรีส์ที่หมดอายุเร็วที่สุด × 0.90) ใช้แทน IV สำหรับกรอบรายวันและรายสัปดาห์</p>
-      <p class="hint">Basis = ราคา GC ลบราคา XAUUSD ของโบรกเกอร์ ณ เวลาเดียวกัน ใช้แปลงระดับของ CME ให้ตรงกับกราฟที่คุณเทรด</p>
+      <p class="hint">Basis = ราคา GC ลบราคา XAUUSD ของโบรกเกอร์ ณ เวลาเดียวกัน ใช้แสดงราคาบนหน้านี้เป็น XAUUSD เท่านั้น ไม่รู้ค่าก็เว้นว่างได้ บรรทัด PLAN เหมือนเดิม และ TradingView วัด Basis เอง (ดูค่าได้จากแถว Basis ในตาราง GOM Plan)</p>
     </form>
 
     <div style="display:grid;gap:18px;min-width:0">
@@ -190,7 +191,7 @@ details.prev table{margin-top:8px}
     <div style="display:grid;gap:8px">
       <h2>วิธีคำนวณ</h2>
       <ul>
-        <li><b>Expected Move</b> = ราคา × IV × √(วันเทรด ÷ 252) ใช้ 1 วันสำหรับกรอบรายวัน 5 วันสำหรับรายสัปดาห์ หรือเลือก Straddle รายวัน (SD ของการ์ด Telegram) แล้วรายสัปดาห์ = SD × √5</li>
+        <li><b>Expected Move</b> = ราคาฟิวเจอร์ส × IV × √(วันเทรด ÷ 252) ใช้ 1 วันสำหรับกรอบรายวัน 5 วันสำหรับรายสัปดาห์ หรือเลือก Straddle รายวัน (SD ของการ์ด Telegram) แล้วรายสัปดาห์ = SD × √5</li>
         <li><b>กรอบ SD</b> = ราคา Settle (แปลงเป็น XAUUSD) ± 1, 2, 3 เท่าของ Expected Move รายวัน</li>
         <li><b>Call/Put Wall</b> = strike ที่มี OI สูงสุด 3 อันดับ (Call เหนือราคา, Put ใต้ราคา) นับเฉพาะในกรอบ ±2 SD ถึงวันหมดอายุ</li>
         <li><b>Max Pain</b> = ราคาที่ผู้ถือออปชันทั้งหมดได้มูลค่ารวมน้อยที่สุด ณ วันหมดอายุ</li>
@@ -217,6 +218,9 @@ details.prev table{margin-top:8px}
 var $=function(id){return document.getElementById(id)};
 var fmt=GOM.fmt, parseOI=GOM.parseOI, compute=GOM.compute;
 var STORE='gom.v1', unit='xau', view='oi', last=null, lastPrev=null;
+/* ช่อง Basis ว่าง: แสดงหน่วยฟิวเจอร์สเสมอ (ราคา XAUUSD ต้องรู้ Basis) บรรทัด PLAN ไม่ขึ้นกับ Basis อยู่แล้ว */
+var noBasis=false;
+function eu(){return noBasis?'fut':unit}
 /* แหล่งข้อมูล: feed = data/feed.json (อัตโนมัติ, ไม่มี OI ทุก strike), prevMeta = ข้อมูลวันก่อนจากไฟล์ CSV */
 var feed=null, prevMeta=null;
 
@@ -235,7 +239,7 @@ function sample(){
 }
 
 /* ---------- แสดงผล ---------- */
-function U(v){return unit==='xau'?v:v+last.basis}
+function U(v){return eu()==='xau'?v:v+last.basis}
 function P(v){return fmt(U(v))}
 function D(v){if(v===null||v===undefined)return '';return '<span class="'+(v>=0?'d-up':'d-dn')+'">'+(v>=0?'+':'−')+fmt(Math.abs(v),0)+'</span>'}
 var BIAS={up:['▲','ขาขึ้น'],down:['▼','ขาลง'],flat:['◆','ไซด์เวย์']};
@@ -244,7 +248,7 @@ function renderStats(m){
   var pv=m.prev;
   var s=[
     ['มุมมอง','<span class="bias '+m.bias+'">'+BIAS[m.bias][0]+' '+BIAS[m.bias][1]+'</span>','จาก Max Pain และ Put/Call'],
-    ['ราคา'+(unit==='xau'?' XAUUSD':' (เทียบ GC)'),P(m.px),'Settle '+P(m.Fb)],
+    ['ราคา'+(eu()==='xau'?' XAUUSD':' (เทียบ GC)'),P(m.px),'Settle '+P(m.Fb)],
     ['Expected Move'+(m.EM.src==='straddle'?' (straddle)':' (IV)'),'±'+fmt(m.EM.day,1),'สัปดาห์ ±'+fmt(m.EM.week,1)+' · หมดอายุ ±'+fmt(m.EM.exp,1)],
     ['Max Pain',m.mp===null?'—':P(m.mp-m.basis),'strike '+fmt(m.mp,0)+(pv&&pv.mp!==null&&m.mp!==null?' · วันก่อน '+fmt(pv.mp,0)+(pv.mp!==m.mp?' ('+D(m.mp-pv.mp)+')':''):'')],
     ['Put / Call',m.pcr===null?'—':m.pcr.toFixed(2),(pv&&pv.pcr!==null?'วันก่อน '+pv.pcr.toFixed(2)+' · ':'')+'IV '+(m.iv*100).toFixed(1)+'% · DTE '+m.dte]
@@ -294,7 +298,7 @@ function renderChart(m){
   m.zones.forEach(function(z){rect(x0,y(z.to),x1-x0,Math.max(3,y(z.from)-y(z.to)),c(z.side==='buy'?'--put-soft':'--call-soft'))});
   /* แกนราคา */
   var step=[5,10,20,25,50,100,200,250,500].find(function(s){return (hi-lo)/s<=(narrow?10:14)})||500;
-  for(var t=Math.ceil(U(lo)/step)*step;t<=U(hi);t+=step){var yy=y(unit==='xau'?t:t-m.basis);line(yy,c('--line'),'',1,x0,x1);text(axisW,yy,fmt(t,0),c('--mute'),'end')}
+  for(var t=Math.ceil(U(lo)/step)*step;t<=U(hi);t+=step){var yy=y(eu()==='xau'?t:t-m.basis);line(yy,c('--line'),'',1,x0,x1);text(axisW,yy,fmt(t,0),c('--mute'),'end')}
   line(padT,c('--line'));
   o.push('<line x1="'+cx+'" x2="'+cx+'" y1="'+padT+'" y2="'+(H-padB)+'" stroke="'+c('--line')+'"/>');
   /* แท่ง OI หรือ ΔOI (ΔOI: แท่งทึบ = เพิ่ม, แท่งโปร่งมีขอบ = ลด) ข้อมูลอัตโนมัติไม่มี OI ทุก strike จึงไม่มีแท่ง */
@@ -339,7 +343,8 @@ function renderChart(m){
 
 function render(){
   if(!last)return;
-  $('uXau').setAttribute('aria-pressed',unit==='xau');$('uFut').setAttribute('aria-pressed',unit==='fut');
+  $('uXau').setAttribute('aria-pressed',eu()==='xau');$('uFut').setAttribute('aria-pressed',eu()==='fut');
+  $('uXau').disabled=noBasis;$('basisTag').hidden=!noBasis;
   $('oiSeg').hidden=!(last.hasPrev&&last.rows.length);
   $('vOi').setAttribute('aria-pressed',view==='oi');$('vDoi').setAttribute('aria-pressed',view==='doi');
   renderStats(last);renderPlan(last);renderChart(last);
@@ -361,6 +366,7 @@ function run(src){
   if(useFeed)inp.stats=feed.today.stats[inp.em==='straddle'?'straddle':'iv'];
   var msg=!isFinite(inp.F)?'ใส่ราคา Settle ของฟิวเจอร์ส GC':!(inp.iv>0)?'ใส่ค่า IV เป็นเปอร์เซ็นต์ เช่น 20.5':!(inp.dte>0)?'ใส่จำนวนวันถึงหมดอายุ':inp.em==='straddle'&&!(inp.sd>0)?'ใส่ SD รายวันจาก straddle หรือเปลี่ยนกลับเป็น IV รายเดือน':!useFeed&&inp.rows.length<3?'ตาราง OI ต้องมีอย่างน้อย 3 แถว รูปแบบ strike, Call OI, Put OI':'';
   err.hidden=!msg;err.textContent=msg;if(msg)return;
+  noBasis=!String(d.basis).trim();
   last=compute(inp);lastPrev=null;
   /* แผนวันก่อน: ราคาอ้างอิง = Settle ของวันนั้น ใช้ Basis และโหมด Expected Move เดียวกับวันนี้ */
   var pd=useFeed?feed.prev:(prevMeta&&last.hasPrev?prevMeta:null);
@@ -389,7 +395,7 @@ $('fFile').addEventListener('change',function(){var f=this.files&&this.files[0];
   r.onload=function(){var t=String(r.result);$('fOi').value=t;var meta=applyMeta(t);run('manual');
     if(meta){toast('โหลดข้อมูลวันที่ '+(meta.trade_date||'')+(meta.prev_trade_date?' (+ วันก่อน '+meta.prev_trade_date+')':'')+(meta.basis||$('fBasis').value?'':' · อย่าลืมใส่ Basis'))}};
   r.readAsText(f);this.value=''});
-$('uXau').addEventListener('click',function(){unit='xau';render()});
+$('uXau').addEventListener('click',function(){if(noBasis){toast('ใส่ Basis ก่อน ดูได้จากแถว Basis ในตาราง GOM Plan บน TradingView');return}unit='xau';render()});
 $('uFut').addEventListener('click',function(){unit='fut';render()});
 $('vOi').addEventListener('click',function(){view='oi';render()});
 $('vDoi').addEventListener('click',function(){view='doi';render()});
@@ -420,7 +426,7 @@ function applyFeed(byUser){
   fill({F:t.settle.toFixed(2),basis:keep.basis,iv:t.iv,dte:t.dte,date:t.date,px:keep.date===t.date?keep.px:'',em:keep.em,sd:t.sd_day||'',oi:''});
   $('fOi').placeholder='ข้อมูลอัตโนมัติ: '+feed.underlying+' settle '+t.date+(feed.prev?' (+ วันก่อน '+feed.prev.date+')':'')+' ไม่เผยแพร่ OI ทุก strike วางตารางหรือเลือกไฟล์ถ้าต้องการแท่ง OI';
   run('feed');
-  if(byUser||!$('fBasis').value)toast('ข้อมูลอัตโนมัติ settle '+t.date+($('fBasis').value?'':' · ใส่ Basis เพื่อแปลงเป็นราคา XAUUSD'));
+  if(byUser)toast('ข้อมูลอัตโนมัติ settle '+t.date);
 }
 var saved=null;try{saved=JSON.parse(localStorage.getItem(STORE)||'null')}catch(e){}
 if(saved&&saved.d){unit=saved.unit||'xau';view=saved.view||'oi';prevMeta=saved.prevMeta||null;fill(saved.d)}

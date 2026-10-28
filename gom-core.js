@@ -29,10 +29,11 @@ function parseMeta(txt){
 }
 
 /* ---------- Expected Move ---------- */
-/* โหมด straddle: σ รายวันมาจากการ์ด Telegram ของ qs-archive รายสัปดาห์ = σ × √5 ส่วนถึงหมดอายุยังใช้ IV */
+/* โหมด straddle: σ รายวันมาจากการ์ด Telegram ของ qs-archive รายสัปดาห์ = σ × √5 ส่วนถึงหมดอายุยังใช้ IV
+   ขนาด σ คิดจากราคาฟิวเจอร์ส F (ไม่หัก Basis) บรรทัด PLAN จึงเหมือนเดิมไม่ว่าจะใส่ Basis เท่าไร */
 function emOf(inp){
   var Fb=inp.F-inp.basis, iv=inp.iv/100;
-  var em=function(days){return Fb*iv*Math.sqrt(days/252)};
+  var em=function(days){return inp.F*iv*Math.sqrt(days/252)};
   var useSd=inp.em==='straddle'&&inp.sd>0;
   var sig=useSd?inp.sd:em(1), tdays=Math.max(1,Math.round(inp.dte*5/7));
   return {Fb:Fb,sig:sig,tdays:tdays,EM:{day:sig,week:useSd?sig*Math.sqrt(5):em(5),exp:em(tdays),src:useSd?'straddle':'iv'}};
@@ -152,7 +153,8 @@ function compare(m,p){
    ส่ง p (แผนวันก่อน) มาด้วยเพื่อต่อท้ายเป็น " | PREV ..." คัดลอกครั้งเดียวได้ทั้งสองวัน */
 function planLine(m,p){
   function one(m,tag){
-    var f=function(v){return (v+m.basis).toFixed(2)}, pair=function(a){return f(a[0])+','+f(a[1])};
+    /* ปัด 6 ตำแหน่งก่อน: ค่าที่ลงท้าย .xx5 พอดีไม่ปัดต่างกันเพราะเศษทศนิยมจากการบวก/ลบ Basis */
+    var f=function(v){return (+(v+m.basis).toFixed(6)).toFixed(2)}, pair=function(a){return f(a[0])+','+f(a[1])};
     var t=[tag,'d='+(m.date||''),'b='+{up:'U',down:'D',flat:'F'}[m.bias],'sd1='+pair(m.bands.sd1),'sd2='+pair(m.bands.sd2),'wk='+pair(m.bands.week)];
     if(m.mp!==null)t.push('mp='+m.mp);
     if(m.callWalls.length)t.push('cw='+m.callWalls.map(function(w){return w.strike}).join(','));
