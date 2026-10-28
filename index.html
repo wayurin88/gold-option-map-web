@@ -305,7 +305,7 @@ function planRows(m){
 }
 function renderPlan(m){
   $('plan').innerHTML=planRows(m);
-  $('tvLine').value=GOM.planLine(m,lastPrev);
+  $('tvLine').value=GOM.planLine(m,lastPrev,curInfo&&curInfo.underlying);
   $('trig').innerHTML='Breakout เหนือ <span class="num">'+P(m.bands.sd1[1])+'</span> · Breakdown ใต้ <span class="num">'+P(m.bands.sd1[0])+'</span> (ขอบกรอบ 1SD) ถ้าราคาปิดนอกกรอบ ให้เลิกใช้แผนเล่นในกรอบ';
   $('prevBox').hidden=!lastPrev;
   if(lastPrev){
@@ -376,16 +376,7 @@ function renderChart(m){
 }
 
 /* ---------- ข้อมูลเสริม (เชิงพรรณนา ไม่ใช่สัญญาณ) ---------- */
-var MON='FGHJKMNQUVXZ', ACTIVE='GJMQVZ';
-/* สัญญาฟิวเจอร์สของซีรีส์ OG: เดือน active (G J M Q V Z) แรกที่ไม่ก่อนเดือนออปชัน เช่น OGZ6 → GCZ2026, OGF7 → GCG2027 */
-function futOf(und){
-  var m=/^OG([FGHJKMNQUVXZ])(\d)$/.exec(und||'');if(!m)return null;
-  var mi=MON.indexOf(m[1]), y=2020+(+m[2]);
-  for(var i=mi;i<12;i++)if(ACTIVE.indexOf(MON[i])>=0)return {code:'COMEX:GC'+MON[i]+y,mi:i,y:y};
-  return {code:'COMEX:GCG'+(y+1),mi:1,y:y+1};
-}
-/* ซีรีส์รายเดือนถัดไป (มีทุกเดือน) เช่น OGX6 → OGZ6, OGZ6 → OGF7 */
-function nextOg(und){var m=/^OG([FGHJKMNQUVXZ])(\d)$/.exec(und||'');if(!m)return null;var i=MON.indexOf(m[1]);return i<11?'OG'+MON[i+1]+m[2]:'OGF'+((+m[2]+1)%10)}
+var futOf=GOM.futOf, nextOg=GOM.nextOg;
 function renderRoll(){
   var bar=$('rollBar');bar.hidden=true;if(!curInfo||!curInfo.underlying||!curInfo.expiration)return;
   var f=futOf(curInfo.underlying);if(!f)return;
@@ -520,7 +511,7 @@ $('bCopy').addEventListener('click',function(){
   try{navigator.clipboard.writeText(txt).then(function(){toast('คัดลอกแผนแล้ว')},function(){fallback(txt)})}catch(e){fallback(txt)}
 });
 $('bTv').addEventListener('click',function(){
-  if(!last)return;var txt=GOM.planLine(last,lastPrev);
+  if(!last)return;var txt=GOM.planLine(last,lastPrev,curInfo&&curInfo.underlying);
   if(!last.date){toast('ใส่วัน settle ก่อน อินดิเคเตอร์ใช้วันนี้วัด Basis');return}
   try{navigator.clipboard.writeText(txt).then(function(){toast('คัดลอกแล้ว'+(lastPrev?' (วันนี้ + วันก่อน)':'')+' วางในช่อง Paste plan line ของอินดิเคเตอร์')},function(){fallback(txt)})}catch(e){fallback(txt)}
 });

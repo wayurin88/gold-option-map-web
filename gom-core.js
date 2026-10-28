@@ -149,13 +149,27 @@ function compare(m,p){
   m.prev={date:p.date,mp:p.mp,pcr:p.pcr};
 }
 
+/* สัญญาฟิวเจอร์สของซีรีส์ OG: เดือน active (G J M Q V Z) แรกที่ไม่ก่อนเดือนออปชัน เช่น OGZ6 → GCZ2026, OGX6 → GCZ2026, OGF7 → GCG2027 */
+var MON='FGHJKMNQUVXZ', ACTIVE='GJMQVZ';
+function futOf(und){
+  var m=/^OG([FGHJKMNQUVXZ])(\d)$/.exec(und||'');if(!m)return null;
+  var mi=MON.indexOf(m[1]), y=2020+(+m[2]);
+  for(var i=mi;i<12;i++)if(ACTIVE.indexOf(MON[i])>=0)return {code:'COMEX:GC'+MON[i]+y,short:'GC'+MON[i]+y,mi:i,y:y};
+  return {code:'COMEX:GCG'+(y+1),short:'GCG'+(y+1),mi:1,y:y+1};
+}
+/* ซีรีส์รายเดือนถัดไป (มีทุกเดือน) เช่น OGX6 → OGZ6, OGZ6 → OGF7 */
+function nextOg(und){var m=/^OG([FGHJKMNQUVXZ])(\d)$/.exec(und||'');if(!m)return null;var i=MON.indexOf(m[1]);return i<11?'OG'+MON[i+1]+m[2]:'OGF'+((+m[2]+1)%10)}
+
 /* บรรทัด PLAN ให้อินดิเคเตอร์ gold_option_map_plan.pine ราคาทั้งหมดเป็นหน่วยฟิวเจอร์ส
-   ส่ง p (แผนวันก่อน) มาด้วยเพื่อต่อท้ายเป็น " | PREV ..." คัดลอกครั้งเดียวได้ทั้งสองวัน */
-function planLine(m,p){
+   ส่ง p (แผนวันก่อน) มาด้วยเพื่อต่อท้ายเป็น " | PREV ..." คัดลอกครั้งเดียวได้ทั้งสองวัน
+   und = ซีรีส์ของแผน (เช่น OGZ6) ใส่ f=GCZ2026 ให้อินดิเคเตอร์ตรวจว่าตั้ง Futures contract ตรงกัน */
+function planLine(m,p,und){
+  var fu=futOf(und);
   function one(m,tag){
     /* ปัด 6 ตำแหน่งก่อน: ค่าที่ลงท้าย .xx5 พอดีไม่ปัดต่างกันเพราะเศษทศนิยมจากการบวก/ลบ Basis */
     var f=function(v){return (+(v+m.basis).toFixed(6)).toFixed(2)}, pair=function(a){return f(a[0])+','+f(a[1])};
     var t=[tag,'d='+(m.date||''),'b='+{up:'U',down:'D',flat:'F'}[m.bias],'sd1='+pair(m.bands.sd1),'sd2='+pair(m.bands.sd2),'wk='+pair(m.bands.week)];
+    if(tag==='PLAN'&&fu)t.push('f='+fu.short);
     if(m.mp!==null)t.push('mp='+m.mp);
     if(m.callWalls.length)t.push('cw='+m.callWalls.map(function(w){return w.strike}).join(','));
     if(m.putWalls.length)t.push('pw='+m.putWalls.map(function(w){return w.strike}).join(','));
@@ -165,7 +179,7 @@ function planLine(m,p){
   return one(m,'PLAN')+(p?' | '+one(p,'PREV'):'');
 }
 
-var GOM={fmt:fmt,parseOI:parseOI,parseMeta:parseMeta,emOf:emOf,oiStats:oiStats,compute:compute,compare:compare,planLine:planLine};
+var GOM={fmt:fmt,parseOI:parseOI,parseMeta:parseMeta,emOf:emOf,oiStats:oiStats,compute:compute,compare:compare,planLine:planLine,futOf:futOf,nextOg:nextOg};
 root.GOM=GOM;
 if(typeof module!=='undefined'&&module.exports) module.exports=GOM;
 })(typeof window!=='undefined'?window:globalThis);
