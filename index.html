@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="th">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gold Option Map</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: control rail on the left, the price ladder as the centrepiece, plan table under it; one column on phones */
+:root{
+  --bg:#eef0ee; --panel:#ffffff; --ink:#1b1f1d; --mute:#5d6662; --line:#d5dad6; --soft:#e4e8e5;
+  --gold:#9a6d06; --gold-soft:rgba(176,128,16,.14);
+  --put:#1d7a55; --put-soft:rgba(29,122,85,.16); --call:#b23a3a; --call-soft:rgba(178,58,58,.15);
+  --band1:rgba(154,109,6,.16); --band2:rgba(154,109,6,.09); --band3:rgba(154,109,6,.045);
+  --display:"Chakra Petch","IBM Plex Sans Thai",system-ui,sans-serif;
+  --body:"IBM Plex Sans Thai",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121614; --panel:#1a1f1d; --ink:#e7ebe8; --mute:#9aa49f; --line:#2c3431; --soft:#222826;
+  --gold:#e2b84e; --gold-soft:rgba(226,184,78,.14);
+  --put:#4cc08d; --put-soft:rgba(76,192,141,.18); --call:#ef7a72; --call-soft:rgba(239,122,114,.17);
+  --band1:rgba(226,184,78,.15); --band2:rgba(226,184,78,.08); --band3:rgba(226,184,78,.04); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121614; --panel:#1a1f1d; --ink:#e7ebe8; --mute:#9aa49f; --line:#2c3431; --soft:#222826;
+  --gold:#e2b84e; --gold-soft:rgba(226,184,78,.14);
+  --put:#4cc08d; --put-soft:rgba(76,192,141,.18); --call:#ef7a72; --call-soft:rgba(239,122,114,.17);
+  --band1:rgba(226,184,78,.15); --band2:rgba(226,184,78,.08); --band3:rgba(226,184,78,.04); color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:1240px;margin:0 auto;display:grid;gap:18px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+h1{font-family:var(--display);font-weight:700;font-size:28px;letter-spacing:.01em;margin:0;line-height:1.1;text-wrap:balance}
+h1 span{color:var(--gold)}
+h2{font-family:var(--display);font-weight:600;font-size:17px;margin:0;letter-spacing:.02em}
+.sub{color:var(--mute);margin:4px 0 0;max-width:62ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);color:var(--mute);background:var(--panel)}
+.tag.sample{border-color:var(--gold);color:var(--gold)}
+.grid{display:grid;grid-template-columns:320px minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:14px;min-width:0}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field{display:grid;gap:4px;min-width:0}
+.field.full{grid-column:1/-1}
+label{font-size:12px;color:var(--mute);letter-spacing:.02em}
+input,textarea,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 9px;width:100%;min-width:0}
+input.num,textarea{font-family:var(--mono);font-size:13px}
+textarea{min-height:150px;resize:vertical;line-height:1.45}
+input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.hint{font-size:12px;color:var(--mute);margin:0}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button{font:inherit;font-size:13px;cursor:pointer;border-radius:6px;padding:7px 12px;border:1px solid var(--line);background:var(--soft);color:var(--ink)}
+button.pri{background:var(--gold);border-color:var(--gold);color:var(--panel);font-weight:600}
+button:hover{filter:brightness(1.06)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{border:0;border-radius:0;background:transparent;color:var(--mute);padding:5px 10px}
+.seg button[aria-pressed="true"]{background:var(--gold-soft);color:var(--ink);font-weight:600}
+.err{color:var(--call);font-size:12px;margin:0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.stat{background:var(--panel);padding:10px 12px;display:grid;gap:2px;min-width:0}
+.stat b{font-family:var(--mono);font-weight:600;font-size:17px;font-variant-numeric:tabular-nums}
+.stat small{color:var(--mute);font-size:11.5px}
+.bias{display:inline-flex;align-items:center;gap:6px;font-family:var(--display);font-weight:600;font-size:15px}
+.bias.up{color:var(--put)} .bias.down{color:var(--call)} .bias.flat{color:var(--gold)}
+.chart-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--mute)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+#chart{width:100%;display:block}
+#chart text{font-family:var(--mono);font-size:11px}
+.reasons{margin:0;padding-left:18px;color:var(--mute);font-size:13px}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:13px}
+th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-weight:500;color:var(--mute);font-size:12px}
+th:first-child,td:first-child,td.why,th.why{text-align:left}
+td.why{white-space:normal;min-width:200px;color:var(--mute);font-size:12.5px}
+.side{font-family:var(--display);font-weight:600;padding:2px 8px;border-radius:4px}
+.side.buy{background:var(--put-soft);color:var(--put)} .side.sell{background:var(--call-soft);color:var(--call)}
+.conf{font-size:11.5px;padding:2px 7px;border-radius:999px;border:1px solid var(--line);color:var(--mute)}
+.conf.high{border-color:var(--put);color:var(--put)} .conf.medium{border-color:var(--gold);color:var(--gold)}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;align-items:start}
+.notes p,.notes li{color:var(--mute);font-size:13px;margin:0}
+.notes ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.notes a{color:var(--gold)}
+.warn{font-size:12px;color:var(--mute);border-top:1px solid var(--line);padding-top:12px;margin:0}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:6px;font-size:13px}
+@media (prefers-reduced-motion:no-preference){button{transition:filter .15s}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Gold <span>Option</span> Map</h1>
+      <p class="sub">แผนที่ระดับราคาทองคำ XAUUSD จากข้อมูลออปชันทองคำ CME: กรอบ Expected Move, Put/Call Wall, Max Pain และโซนแผนเทรด</p>
+    </div>
+    <div class="row">
+      <span class="tag sample" id="srcTag">ข้อมูลตัวอย่าง</span>
+      <div class="seg" role="group" aria-label="หน่วยราคา">
+        <button type="button" id="uXau" aria-pressed="true">XAUUSD</button>
+        <button type="button" id="uFut" aria-pressed="false">ฟิวเจอร์ส GC</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="grid">
+    <form class="panel" id="form" autocomplete="off">
+      <h2>ข้อมูลจาก CME</h2>
+      <div class="fields">
+        <div class="field"><label for="fF">Settle ฟิวเจอร์ส GC</label><input class="num" id="fF" inputmode="decimal"></div>
+        <div class="field"><label for="fBasis">Basis (GC − XAUUSD)</label><input class="num" id="fBasis" inputmode="decimal"></div>
+        <div class="field"><label for="fIv">IV ATM (%)</label><input class="num" id="fIv" inputmode="decimal"></div>
+        <div class="field"><label for="fDte">วันถึงหมดอายุ (DTE)</label><input class="num" id="fDte" inputmode="numeric"></div>
+        <div class="field"><label for="fDate">วัน settle</label><input class="num" id="fDate" type="date"></div>
+        <div class="field"><label for="fPx">ราคา XAUUSD ตอนนี้</label><input class="num" id="fPx" inputmode="decimal"></div>
+        <div class="field"><label for="fEm">Expected Move รายวันจาก</label><select id="fEm"><option value="iv">IV รายเดือน</option><option value="straddle">Straddle รายวัน</option></select></div>
+        <div class="field"><label for="fSd">SD รายวัน (straddle)</label><input class="num" id="fSd" inputmode="decimal" placeholder="เช่น 33.6"></div>
+        <div class="field full">
+          <label for="fOi">Open Interest ต่อ strike: strike, Call OI, Put OI</label>
+          <textarea id="fOi" spellcheck="false"></textarea>
+          <p class="hint">วางจากตาราง Volume &amp; OI ของ CME หรือ Excel ได้ (คั่นด้วย comma หรือ tab) หรือ<label for="fFile" style="color:var(--gold);cursor:pointer;font-size:12px"> เลือกไฟล์ CSV</label></p>
+          <input type="file" id="fFile" accept=".csv,.txt,text/csv" hidden>
+        </div>
+      </div>
+      <p class="err" id="err" hidden></p>
+      <div class="row">
+        <button type="submit" class="pri">คำนวณ</button>
+        <button type="button" id="bSample">โหลดตัวอย่าง</button>
+      </div>
+      <p class="hint">Straddle รายวัน = ค่า SD เดียวกับการ์ด Telegram ของ qs-archive (straddle ของซีรีส์ที่หมดอายุเร็วที่สุด × 0.90) ใช้แทน IV สำหรับกรอบรายวันและรายสัปดาห์</p>
+      <p class="hint">Basis = ราคา GC ลบราคา XAUUSD ของโบรกเกอร์ ณ เวลาเดียวกัน ใช้แปลงระดับของ CME ให้ตรงกับกราฟที่คุณเทรด</p>
+    </form>
+
+    <div style="display:grid;gap:18px;min-width:0">
+      <div class="stats" id="stats"></div>
+
+      <section class="panel">
+        <div class="chart-head">
+          <h2>บันไดระดับราคา</h2>
+          <div class="legend">
+            <span><i style="background:var(--put)"></i>Put OI / แนวรับ</span>
+            <span><i style="background:var(--call)"></i>Call OI / แนวต้าน</span>
+            <span><i style="background:var(--band1)"></i>กรอบ 1–3 SD รายวัน</span>
+            <span><i style="background:var(--gold)"></i>ราคาปัจจุบัน</span>
+          </div>
+        </div>
+        <svg id="chart" role="img" aria-label="กราฟ Open Interest และระดับราคา"></svg>
+        <ul class="reasons" id="reasons"></ul>
+      </section>
+
+      <section class="panel">
+        <div class="chart-head">
+          <h2>แผนเทรด</h2>
+          <div class="row"><button type="button" id="bCopy">คัดลอกแผน</button><button type="button" id="bTv" class="pri">คัดลอกไป TradingView</button></div>
+        </div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>แผน</th><th>โซนเข้า</th><th>Entry</th><th>SL</th><th>TP1</th><th>TP2</th><th>TP3</th><th>R (TP1)</th><th>ความมั่นใจ</th><th class="why">เหตุผล</th></tr></thead>
+          <tbody id="plan"></tbody>
+        </table></div>
+        <p class="hint" id="trig"></p>
+        <div class="field">
+          <label for="tvLine">บรรทัด PLAN สำหรับอินดิเคเตอร์ Gold Option Map Plan บน TradingView (ราคาเป็นหน่วยฟิวเจอร์ส อินดิเคเตอร์แปลง Basis เอง)</label>
+          <textarea class="num" id="tvLine" readonly rows="3" style="min-height:0" onfocus="this.select()"></textarea>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <section class="panel notes">
+    <div style="display:grid;gap:8px">
+      <h2>วิธีคำนวณ</h2>
+      <ul>
+        <li><b>Expected Move</b> = ราคา × IV × √(วันเทรด ÷ 252) ใช้ 1 วันสำหรับกรอบรายวัน 5 วันสำหรับรายสัปดาห์ หรือเลือก Straddle รายวัน (SD ของการ์ด Telegram) แล้วรายสัปดาห์ = SD × √5</li>
+        <li><b>กรอบ SD</b> = ราคา Settle (แปลงเป็น XAUUSD) ± 1, 2, 3 เท่าของ Expected Move รายวัน</li>
+        <li><b>Call/Put Wall</b> = strike ที่มี OI สูงสุด 3 อันดับ (Call เหนือราคา, Put ใต้ราคา) นับเฉพาะในกรอบ ±2 SD ถึงวันหมดอายุ</li>
+        <li><b>Max Pain</b> = ราคาที่ผู้ถือออปชันทั้งหมดได้มูลค่ารวมน้อยที่สุด ณ วันหมดอายุ</li>
+        <li><b>โซนแผน</b> = ระดับแนวรับ/แนวต้านที่ใกล้ราคาที่สุด SL ห่าง 0.25 เท่าของ Expected Move และ TP คือระดับถัดไป</li>
+      </ul>
+    </div>
+    <div style="display:grid;gap:8px">
+      <h2>หาข้อมูลจากไหน</h2>
+      <ul>
+        <li>ราคา Settle, Volume &amp; OI ของออปชันทองคำ (OG): หน้า <a href="https://www.cmegroup.com/markets/metals/precious/gold.html" target="_blank" rel="noopener">Gold บน cmegroup.com</a> แท็บ Settlements และ Volume &amp; OI (ฟรี, อัปเดตวันละครั้ง)</li>
+        <li>IV ATM: ใช้ค่า IV ของ strike ใกล้ราคาในหน้า Options หรือดัชนี Gold CVOL / GVZ เป็นค่าประมาณ</li>
+        <li>ต้องการอัตโนมัติ: API ข้อมูล CME แบบเสียเงิน เช่น Databento</li>
+      </ul>
+    </div>
+    <p class="warn" style="grid-column:1/-1">เครื่องมือนี้ใช้ศึกษาเท่านั้น ระดับจาก OI ไม่ได้รับประกันว่าราคาจะกลับตัว ข้อมูล CME เป็นข้อมูลสิ้นวันและล่าช้ากว่าตลาด ทดสอบย้อนหลังและเก็บสถิติของคุณเองก่อนใช้เงินจริง</p>
+  </section>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id)};
+var STORE='gom.v1', unit='xau', last=null;
+
+/* ---------- ข้อมูลตัวอย่าง (สังเคราะห์ ไม่ใช่ข้อมูลจริงของตลาด) ---------- */
+function sample(){
+  var seed=7; function rnd(){seed=(seed*16807)%2147483647;return seed/2147483647}
+  function g(x,m,s,a){return a*Math.exp(-Math.pow(x-m,2)/(2*s*s))}
+  var rows=[];
+  for(var k=3500;k<=4700;k+=(k>=3800&&k<=4300?10:25)){
+    var round=(k%100===0?2.6:k%50===0?1.6:1);
+    var c=(g(k,4500,60,900)+g(k,4400,50,700)+g(k,4200,45,650)+g(k,4100,80,260)+g(k,4300,120,180))*round*(0.75+rnd()*0.5);
+    var p=(g(k,4000,40,950)+g(k,3900,45,720)+g(k,3700,60,520)+g(k,3950,90,240)+g(k,4050,70,160))*round*(0.75+rnd()*0.5);
+    rows.push(k+','+Math.round(c)+','+Math.round(p));
+  }
+  return {F:'4038.40',basis:'15.63',iv:'20.5',dte:'28',date:'2026-10-26',px:'4046.90',sd:'37.5',oi:'strike,call_oi,put_oi\n'+rows.join('\n'),sample:true};
+}
+
+/* ---------- อ่านตาราง OI ---------- */
+function parseOI(txt){
+  var out=[];
+  txt.split(/\r?\n/).forEach(function(line){
+    line=line.trim(); if(!line) return;
+    var parts=line.indexOf('\t')>=0?line.split('\t').map(function(s){return s.replace(/,/g,'')}):line.split(/[;,]/);
+    var n=parts.map(function(s){return parseFloat(String(s).replace(/["'\s]/g,''))});
+    if(n.length<3||n.slice(0,3).some(isNaN)) return;
+    out.push({k:n[0],c:Math.max(0,n[1]),p:Math.max(0,n[2])});
+  });
+  out.sort(function(a,b){return a.k-b.k});
+  return out;
+}
+
+/* ---------- คำนวณ ---------- */
+function compute(inp){
+  var F=inp.F, basis=inp.basis, iv=inp.iv/100, rows=inp.rows;
+  var x=function(v){return v-basis};
+  var Fb=x(F), px=isFinite(inp.px)?inp.px:Fb;
+  var em=function(days){return Fb*iv*Math.sqrt(days/252)};
+  /* โหมด straddle: σ รายวันมาจากการ์ด Telegram ของ qs-archive รายสัปดาห์ = σ × √5 ส่วนถึงหมดอายุยังใช้ IV */
+  var useSd=inp.em==='straddle'&&inp.sd>0;
+  var sig=useSd?inp.sd:em(1), tdays=Math.max(1,Math.round(inp.dte*5/7));
+  var EM={day:sig,week:useSd?sig*Math.sqrt(5):em(5),exp:em(tdays),src:useSd?'straddle':'iv'};
+  var bands={sd1:[Fb-sig,Fb+sig],sd2:[Fb-2*sig,Fb+2*sig],sd3:[Fb-3*sig,Fb+3*sig],week:[Fb-EM.week,Fb+EM.week]};
+  var tc=0,tp=0; rows.forEach(function(r){tc+=r.c;tp+=r.p});
+  var pcr=tc>0?tp/tc:null;
+  var mp=null,best=Infinity;
+  rows.forEach(function(s){
+    var pay=0; rows.forEach(function(r){pay+=r.c*Math.max(s.k-r.k,0)+r.p*Math.max(r.k-s.k,0)});
+    if(pay<best){best=pay;mp=s.k}
+  });
+  /* strike ติดกัน (เช่น 4500 กับ 4510) นับเป็น Wall เดียว: ข้าม strike ที่ห่างจาก Wall ที่เลือกแล้วไม่ถึง 0.5 SD รายวัน */
+  function walls(key,filter){
+    var out=[];
+    rows.filter(filter).filter(function(r){return r[key]>0}).sort(function(a,b){return b[key]-a[key]}).forEach(function(r){
+      if(out.length<3&&out.every(function(o){return Math.abs(o.strike-r.k)>0.5*sig}))out.push({strike:r.k,v:x(r.k),oi:r[key],rank:out.length+1});
+    });
+    return out;
+  }
+  /* Wall นับเฉพาะ strike ในกรอบ ±2 SD ถึงวันหมดอายุ ตัด strike ไกลมากที่ OI สูงแต่ไม่มีผลกับราคา (เช่น Call 20000) */
+  var near=function(r){return Math.abs(r.k-F)<=2*EM.exp};
+  var callWalls=walls('c',function(r){return r.k>=F&&near(r)}), putWalls=walls('p',function(r){return r.k<=F&&near(r)});
+
+  /* มุมมอง */
+  var score=0, why=[];
+  if(mp!==null){
+    var d=x(mp)-px;
+    if(Math.abs(d)>0.5*sig){score+=d>0?1:-1;why.push((d>0?'ราคาอยู่ต่ำกว่า':'ราคาอยู่สูงกว่า')+' Max Pain '+fmt(Math.abs(d),1)+' จุด ใกล้วันหมดอายุราคามักถูกดึงเข้าหา Max Pain')}
+    else why.push('ราคาอยู่ใกล้ Max Pain ไม่มีแรงดึงชัดเจน');
+  }
+  if(pcr!==null){
+    if(pcr<0.7){score+=0.5;why.push('Put/Call '+pcr.toFixed(2)+' (Call OI มากกว่า Put ชัดเจน ตลาดเปิดสถานะฝั่งขึ้นมากกว่า)')}
+    else if(pcr>1.3){score-=0.5;why.push('Put/Call '+pcr.toFixed(2)+' (Put OI มากกว่า Call ชัดเจน ตลาดป้องกันขาลงมากกว่า)')}
+    else why.push('Put/Call '+pcr.toFixed(2)+' อยู่ในช่วงกลาง');
+  }
+  if(px>bands.sd1[1]) why.push('ราคาอยู่เหนือกรอบ 1SD แล้ว ถ้ายืนได้ให้ถือเป็น Breakout ขึ้น');
+  else if(px<bands.sd1[0]) why.push('ราคาอยู่ใต้กรอบ 1SD แล้ว ถ้ายืนได้ให้ถือเป็น Breakdown');
+  var bias=score>=1?'up':score<=-1?'down':'flat';
+
+  /* ระดับทั้งหมด (หน่วย XAUUSD) */
+  var L=[];
+  ['sd1','sd2','sd3'].forEach(function(b,i){L.push({v:bands[b][0],t:'band',n:'ขอบล่าง '+(i+1)+'SD',w:i===0?2:1});L.push({v:bands[b][1],t:'band',n:'ขอบบน '+(i+1)+'SD',w:i===0?2:1})});
+  L.push({v:bands.week[0],t:'week',n:'ขอบล่างรายสัปดาห์',w:1},{v:bands.week[1],t:'week',n:'ขอบบนรายสัปดาห์',w:1});
+  putWalls.forEach(function(w){L.push({v:w.v,t:'put',n:'Put Wall '+w.rank,w:4-w.rank})});
+  callWalls.forEach(function(w){L.push({v:w.v,t:'call',n:'Call Wall '+w.rank,w:4-w.rank})});
+  if(mp!==null) L.push({v:x(mp),t:'mp',n:'Max Pain',w:1});
+  L.push({v:Fb,t:'mid',n:'Settle',w:1});
+
+  function clusters(list){
+    var out=[];
+    list.forEach(function(l){
+      var c=out[out.length-1];
+      if(c&&Math.abs(c.items[0].v-l.v)<=0.15*sig){c.items.push(l)} else out.push({items:[l]});
+    });
+    out.forEach(function(c){c.items.sort(function(a,b){return (b.t==='put'||b.t==='call')-(a.t==='put'||a.t==='call')||b.w-a.w});c.anchor=c.items[0]});
+    return out;
+  }
+  var gap=0.1*sig;
+  /* Max Pain กับ Settle เป็นจุดดึงดูด ใช้เป็นเป้า TP ไม่ใช้เป็นจุดเข้า */
+  var sup=clusters(L.filter(function(l){return l.v<px-gap&&l.t!=='call'&&l.t!=='mid'&&l.t!=='mp'}).sort(function(a,b){return b.v-a.v}));
+  var res=clusters(L.filter(function(l){return l.v>px+gap&&l.t!=='put'&&l.t!=='mid'&&l.t!=='mp'}).sort(function(a,b){return a.v-b.v}));
+
+  function zone(cl,side,rank){
+    var a=cl.anchor.v, w=0.1*sig, buy=side==='buy';
+    var from=a, to=buy?a+w:a-w, entry=(from+to)/2, sl=buy?from-0.25*sig:from+0.25*sig, risk=Math.abs(entry-sl);
+    var tgt=L.map(function(l){return l.v}).filter(function(v){return buy?v>entry+0.3*sig:v<entry-0.3*sig}).sort(function(p,q){return buy?p-q:q-p});
+    var tp=[]; tgt.forEach(function(v){if(tp.length<3&&(!tp.length||Math.abs(v-tp[tp.length-1])>gap))tp.push(v)});
+    while(tp.length<3) tp.push(entry+(buy?1:-1)*risk*(tp.length+1)*1.5);
+    var r1=Math.abs(tp[0]-entry)/risk;
+    var names=cl.items.map(function(l){return l.n});
+    var s=0, why=[names.join(' + ')];
+    if(cl.items.length>1){s++;why.push('หลายระดับซ้อนกัน')}
+    if(cl.anchor.t==='put'||cl.anchor.t==='call') s++;
+    if((buy&&bias==='up')||(!buy&&bias==='down')){s++;why.push('ตามมุมมอง')}
+    if((buy&&bias==='down')||(!buy&&bias==='up')){s--;why.push('สวนมุมมอง')}
+    if(a>=bands.week[0]&&a<=bands.week[1]) why.push('อยู่ในกรอบสัปดาห์'); else {s--;why.push('นอกกรอบสัปดาห์')}
+    if(r1<1){s--;why.push('TP1 ต่ำกว่า 1R')}
+    return {id:(buy?'Buy ':'Sell ')+rank,side:side,from:Math.min(from,to),to:Math.max(from,to),entry:entry,sl:sl,tp:tp,r:r1,
+      conf:s>=2?'high':s>=1?'medium':'low',why:why.join(' · ')};
+  }
+  var zones=[];
+  sup.slice(0,2).forEach(function(c,i){zones.push(zone(c,'buy',i+1))});
+  res.slice(0,2).forEach(function(c,i){zones.push(zone(c,'sell',i+1))});
+
+  return {F:F,basis:basis,Fb:Fb,px:px,sig:sig,EM:EM,tdays:tdays,bands:bands,pcr:pcr,mp:mp,callWalls:callWalls,putWalls:putWalls,
+    bias:bias,why:why,levels:L,zones:zones,rows:rows,iv:iv,dte:inp.dte,date:inp.date};
+}
+
+/* ---------- แสดงผล ---------- */
+function fmt(v,d){if(v===null||!isFinite(v))return '—';return Number(v).toLocaleString('en-US',{minimumFractionDigits:d===undefined?2:d,maximumFractionDigits:d===undefined?2:d})}
+function U(v){return unit==='xau'?v:v+last.basis}
+function P(v){return fmt(U(v))}
+var BIAS={up:['▲','ขาขึ้น'],down:['▼','ขาลง'],flat:['◆','ไซด์เวย์']};
+
+function renderStats(m){
+  var s=[
+    ['มุมมอง','<span class="bias '+m.bias+'">'+BIAS[m.bias][0]+' '+BIAS[m.bias][1]+'</span>','จาก Max Pain และ Put/Call'],
+    ['ราคา'+(unit==='xau'?' XAUUSD':' (เทียบ GC)'),P(m.px),'Settle '+P(m.Fb)],
+    ['Expected Move'+(m.EM.src==='straddle'?' (straddle)':' (IV)'),'±'+fmt(m.EM.day,1),'สัปดาห์ ±'+fmt(m.EM.week,1)+' · หมดอายุ ±'+fmt(m.EM.exp,1)],
+    ['Max Pain',m.mp===null?'—':P(m.mp-m.basis),'strike '+fmt(m.mp,0)],
+    ['Put / Call',m.pcr===null?'—':m.pcr.toFixed(2),'IV '+(m.iv*100).toFixed(1)+'% · DTE '+m.dte]
+  ];
+  $('stats').innerHTML=s.map(function(x){return '<div class="stat"><small>'+x[0]+'</small><b>'+x[1]+'</b><small class="num">'+x[2]+'</small></div>'}).join('');
+  $('reasons').innerHTML=m.why.map(function(t){return '<li>'+t+'</li>'}).join('');
+}
+
+function renderPlan(m){
+  var cl={high:'สูง',medium:'กลาง',low:'ต่ำ'};
+  $('plan').innerHTML=m.zones.length?m.zones.map(function(z){
+    return '<tr><td><span class="side '+z.side+'">'+z.id+'</span></td><td class="num">'+P(z.from)+'–'+P(z.to)+'</td><td class="num"><b>'+P(z.entry)+'</b></td><td class="num">'+P(z.sl)+'</td>'+
+      z.tp.map(function(t){return '<td class="num">'+P(t)+'</td>'}).join('')+
+      '<td class="num">'+z.r.toFixed(1)+'R</td><td><span class="conf '+z.conf+'">'+cl[z.conf]+'</span></td><td class="why">'+z.why+'</td></tr>';
+  }).join(''):'<tr><td colspan="10" class="why">ไม่พบระดับรอบราคาปัจจุบัน ตรวจข้อมูล OI และราคาอีกครั้ง</td></tr>';
+  $('tvLine').value=planLine(m);
+  $('trig').innerHTML='Breakout เหนือ <span class="num">'+P(m.bands.sd1[1])+'</span> · Breakdown ใต้ <span class="num">'+P(m.bands.sd1[0])+'</span> (ขอบกรอบ 1SD) ถ้าราคาปิดนอกกรอบ ให้เลิกใช้แผนเล่นในกรอบ';
+}
+
+/* บรรทัด PLAN ให้อินดิเคเตอร์ gold_option_map_plan.pine ราคาทั้งหมดเป็นหน่วยฟิวเจอร์ส */
+function planLine(m){
+  var f=function(v){return (v+m.basis).toFixed(2)}, pair=function(a){return f(a[0])+','+f(a[1])};
+  var t=['PLAN','d='+(m.date||''),'b='+{up:'U',down:'D',flat:'F'}[m.bias],'sd1='+pair(m.bands.sd1),'sd2='+pair(m.bands.sd2),'wk='+pair(m.bands.week)];
+  if(m.mp!==null)t.push('mp='+m.mp);
+  if(m.callWalls.length)t.push('cw='+m.callWalls.map(function(w){return w.strike}).join(','));
+  if(m.putWalls.length)t.push('pw='+m.putWalls.map(function(w){return w.strike}).join(','));
+  m.zones.forEach(function(z){t.push((z.side==='buy'?'B':'S')+z.id.slice(-1)+'='+[z.from,z.to,z.entry,z.sl].concat(z.tp).map(f).join(','))});
+  return t.join(' ');
+}
+
+function renderChart(m){
+  var svg=$('chart'), W=Math.max(320,svg.clientWidth||svg.parentNode.clientWidth-32), narrow=W<560;
+  var H=narrow?520:600, padT=14, padB=14, axisW=56, labW=narrow?118:170, x0=axisW+6, x1=W-labW-8, cx=(x0+x1)/2;
+  var lo=Math.min(m.bands.sd3[0],m.bands.week[0],m.px)-0.4*m.sig, hi=Math.max(m.bands.sd3[1],m.bands.week[1],m.px)+0.4*m.sig;
+  if(m.mp!==null){var mpx=m.mp-m.basis; if(mpx>hi&&mpx<hi+1.5*m.sig)hi=mpx+0.3*m.sig; if(mpx<lo&&mpx>lo-1.5*m.sig)lo=mpx-0.3*m.sig}
+  var y=function(v){return padT+(hi-v)/(hi-lo)*(H-padT-padB)};
+  var css=getComputedStyle(document.documentElement), c=function(n){return css.getPropertyValue(n).trim()};
+  var o=[];
+  function rect(xa,ya,w,h,fill,extra){o.push('<rect x="'+xa.toFixed(1)+'" y="'+ya.toFixed(1)+'" width="'+Math.max(0,w).toFixed(1)+'" height="'+Math.max(0,h).toFixed(1)+'" fill="'+fill+'"'+(extra||'')+'/>')}
+  function line(ya,col,dash,wd,xa,xb){o.push('<line x1="'+(xa||x0)+'" x2="'+(xb||x1)+'" y1="'+ya.toFixed(1)+'" y2="'+ya.toFixed(1)+'" stroke="'+col+'" stroke-width="'+(wd||1)+'"'+(dash?' stroke-dasharray="'+dash+'"':'')+'/>')}
+  function text(xa,ya,t,col,anchor,wt){o.push('<text x="'+xa.toFixed(1)+'" y="'+ya.toFixed(1)+'" fill="'+col+'" text-anchor="'+(anchor||'start')+'" dominant-baseline="middle"'+(wt?' font-weight="'+wt+'"':'')+'>'+t+'</text>')}
+
+  /* กรอบ SD */
+  [['sd3','--band3'],['sd2','--band2'],['sd1','--band1']].forEach(function(b){var r=m.bands[b[0]];rect(x0,y(r[1]),x1-x0,y(r[0])-y(r[1]),c(b[1]))});
+  /* โซนแผน */
+  m.zones.forEach(function(z){rect(x0,y(z.to),x1-x0,Math.max(3,y(z.from)-y(z.to)),c(z.side==='buy'?'--put-soft':'--call-soft'))});
+  /* แกนราคา */
+  var step=[5,10,20,25,50,100,200,250,500].find(function(s){return (hi-lo)/s<=(narrow?10:14)})||500;
+  for(var t=Math.ceil(U(lo)/step)*step;t<=U(hi);t+=step){var yy=y(unit==='xau'?t:t-m.basis);line(yy,c('--line'),'',1,x0,x1);text(axisW,yy,fmt(t,0),c('--mute'),'end')}
+  line(padT,c('--line'));
+  o.push('<line x1="'+cx+'" x2="'+cx+'" y1="'+padT+'" y2="'+(H-padB)+'" stroke="'+c('--line')+'"/>');
+  /* แท่ง OI */
+  var vis=m.rows.filter(function(r){var v=r.k-m.basis;return v>=lo&&v<=hi});
+  var maxOI=Math.max.apply(null,vis.map(function(r){return Math.max(r.c,r.p)}).concat([1]));
+  var dk=Infinity; for(var i=1;i<vis.length;i++)dk=Math.min(dk,vis[i].k-vis[i-1].k); if(!isFinite(dk))dk=10;
+  var bh=Math.max(1.5,Math.min(10,(y(0)-y(dk))*0.75)), half=(x1-x0)/2-4;
+  vis.forEach(function(r){var yy=y(r.k-m.basis)-bh/2;
+    if(r.p)rect(cx-r.p/maxOI*half,yy,r.p/maxOI*half,bh,c('--put'),' opacity=".85"');
+    if(r.c)rect(cx,yy,r.c/maxOI*half,bh,c('--call'),' opacity=".85"')});
+  text(x0+4,padT+10,'PUT OI',c('--put'),'start','600');text(x1-4,padT+10,'CALL OI',c('--call'),'end','600');
+
+  /* ป้ายระดับด้านขวา */
+  var labs=[];
+  function lab(v,t,col,dash,wd){var out=v>hi?'up':v<lo?'dn':'';var vv=Math.min(hi,Math.max(lo,v));
+    if(!out)line(y(vv),col,dash,wd);
+    labs.push({y:y(vv),t:(out==='up'?'↑ ':out==='dn'?'↓ ':'')+t+' '+P(v),col:col})}
+  m.putWalls.forEach(function(w){lab(w.v,'Put W'+w.rank,c('--put'),'',w.rank===1?2:1.2)});
+  m.callWalls.forEach(function(w){lab(w.v,'Call W'+w.rank,c('--call'),'',w.rank===1?2:1.2)});
+  if(m.mp!==null)lab(m.mp-m.basis,'Max Pain',c('--ink'),'6 4',1.2);
+  lab(m.bands.sd1[1],'+1SD',c('--gold'),'2 3',1);lab(m.bands.sd1[0],'−1SD',c('--gold'),'2 3',1);
+  lab(m.bands.week[1],'สัปดาห์',c('--mute'),'1 4',1);lab(m.bands.week[0],'สัปดาห์',c('--mute'),'1 4',1);
+  m.zones.forEach(function(z){labs.push({y:y(z.entry),t:z.id+' '+P(z.entry),col:c(z.side==='buy'?'--put':'--call'),bold:true})});
+  labs.sort(function(a,b){return a.y-b.y});
+  var gapY=13; for(var j=1;j<labs.length;j++)if(labs[j].y-labs[j-1].y<gapY)labs[j].y=labs[j-1].y+gapY;
+  var over=labs.length?labs[labs.length-1].y-(H-padB-4):0; if(over>0)for(var q=labs.length-1;q>=0;q--){labs[q].y-=over;if(q&&labs[q].y-labs[q-1].y>=gapY)break;over=q?gapY-(labs[q].y-labs[q-1].y):0}
+  labs.forEach(function(l){text(x1+8,l.y,l.t,l.col,'start',l.bold?'600':'')});
+
+  /* ราคาปัจจุบัน */
+  var py=y(m.px); line(py,c('--gold'),'',2,axisW+2,x1);
+  rect(x0+2,py-9,narrow?66:74,18,c('--gold'),' rx="3"');text(x0+6,py,fmt(U(m.px)),c('--panel'),'start','600');
+
+  svg.setAttribute('viewBox','0 0 '+W+' '+H);svg.setAttribute('height',H);svg.innerHTML=o.join('');
+}
+
+function render(){
+  if(!last)return;
+  $('uXau').setAttribute('aria-pressed',unit==='xau');$('uFut').setAttribute('aria-pressed',unit==='fut');
+  renderStats(last);renderPlan(last);renderChart(last);
+}
+
+/* ---------- ฟอร์ม ---------- */
+function fill(d){$('fF').value=d.F;$('fBasis').value=d.basis;$('fIv').value=d.iv;$('fDte').value=d.dte;$('fDate').value=d.date||'';$('fPx').value=d.px;$('fEm').value=d.em||'iv';$('fSd').value=d.sd||'';$('fOi').value=d.oi;$('srcTag').hidden=!d.sample}
+function read(){return {F:$('fF').value,basis:$('fBasis').value,iv:$('fIv').value,dte:$('fDte').value,date:$('fDate').value,px:$('fPx').value,em:$('fEm').value,sd:$('fSd').value,oi:$('fOi').value}}
+function run(isSample){
+  var d=read(), err=$('err'), n=function(s){return parseFloat(String(s).replace(/,/g,''))};
+  var inp={F:n(d.F),basis:n(d.basis)||0,iv:n(d.iv),dte:n(d.dte),date:d.date,px:n(d.px),em:d.em,sd:n(d.sd),rows:parseOI(d.oi)};
+  var msg=!isFinite(inp.F)?'ใส่ราคา Settle ของฟิวเจอร์ส GC':!(inp.iv>0)?'ใส่ค่า IV เป็นเปอร์เซ็นต์ เช่น 20.5':!(inp.dte>0)?'ใส่จำนวนวันถึงหมดอายุ':inp.em==='straddle'&&!(inp.sd>0)?'ใส่ SD รายวันจาก straddle หรือเปลี่ยนกลับเป็น IV รายเดือน':inp.rows.length<3?'ตาราง OI ต้องมีอย่างน้อย 3 แถว รูปแบบ strike, Call OI, Put OI':'';
+  err.hidden=!msg;err.textContent=msg;if(msg)return;
+  last=compute(inp);$('srcTag').hidden=!isSample;
+  try{localStorage.setItem(STORE,JSON.stringify({d:d,sample:!!isSample,unit:unit}))}catch(e){}
+  render();
+}
+$('form').addEventListener('submit',function(e){e.preventDefault();run(false)});
+$('bSample').addEventListener('click',function(){fill(sample());run(true)});
+/* ไฟล์จาก cme_fetch.py มีบรรทัด "# key=value" ด้านบน ใช้เติมช่องข้อมูลให้อัตโนมัติ */
+function applyMeta(txt){
+  var map={settle:'fF',basis:'fBasis',iv:'fIv',dte:'fDte',trade_date:'fDate',price:'fPx',sd_day:'fSd'},meta={},n=0;
+  txt.split(/\r?\n/).forEach(function(l){var m=/^\s*#\s*([a-z_]+)\s*=\s*(.*)$/i.exec(l);if(m)meta[m[1].toLowerCase()]=m[2].trim()});
+  Object.keys(map).forEach(function(k){if(meta[k]){$(map[k]).value=meta[k];n++}});
+  return n?meta:null;
+}
+$('fEm').addEventListener('change',function(){run($('srcTag').hidden===false)});
+$('fFile').addEventListener('change',function(){var f=this.files&&this.files[0];if(!f)return;var r=new FileReader();
+  r.onload=function(){var t=String(r.result);$('fOi').value=t;var meta=applyMeta(t);run(false);
+    if(meta){toast('โหลดข้อมูล CME วันที่ '+(meta.trade_date||'')+(meta.basis?'':' · อย่าลืมใส่ Basis'))}};
+  r.readAsText(f);this.value=''});
+$('uXau').addEventListener('click',function(){unit='xau';render()});
+$('uFut').addEventListener('click',function(){unit='fut';render()});
+var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){if(last)renderChart(last)},120)});
+if(window.matchMedia)window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){if(last)renderChart(last)});
+new MutationObserver(function(){if(last)renderChart(last)}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+function toast(t){var el=$('toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){el.hidden=true},1800)}
+$('bCopy').addEventListener('click',function(){
+  if(!last)return;var m=last;
+  var lines=['XAUUSD · มุมมอง '+BIAS[m.bias][1]+' · ราคา '+P(m.px),'กรอบ 1SD '+P(m.bands.sd1[0])+' – '+P(m.bands.sd1[1])+' · Max Pain '+(m.mp===null?'—':P(m.mp-m.basis))];
+  m.zones.forEach(function(z){lines.push(z.id+' @ '+P(z.entry)+' SL '+P(z.sl)+' TP '+z.tp.map(P).join(' / ')+' ('+z.r.toFixed(1)+'R)')});
+  var txt=lines.join('\n');
+  try{navigator.clipboard.writeText(txt).then(function(){toast('คัดลอกแผนแล้ว')},function(){fallback(txt)})}catch(e){fallback(txt)}
+});
+$('bTv').addEventListener('click',function(){
+  if(!last)return;var txt=planLine(last);
+  if(!last.date){toast('ใส่วัน settle ก่อน อินดิเคเตอร์ใช้วันนี้วัด Basis');return}
+  try{navigator.clipboard.writeText(txt).then(function(){toast('คัดลอกแล้ว วางในช่อง Paste plan line ของอินดิเคเตอร์')},function(){fallback(txt)})}catch(e){fallback(txt)}
+});
+function fallback(txt){var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('คัดลอกแผนแล้ว')}catch(e){toast('คัดลอกไม่ได้ เลือกข้อความเองแทน')}ta.remove()}
+
+/* ---------- เริ่ม ---------- */
+var saved=null;try{saved=JSON.parse(localStorage.getItem(STORE)||'null')}catch(e){}
+if(saved&&saved.d){unit=saved.unit||'xau';fill(Object.assign({},saved.d,{sample:saved.sample}));run(saved.sample)}
+else{fill(sample());run(true)}
+})();
+</script>
