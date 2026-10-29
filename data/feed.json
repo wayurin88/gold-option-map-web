@@ -56,6 +56,37 @@
       "d": -128,
       "rank": 3
      }
+    ],
+    "flow": {
+     "dc": 363,
+     "dp": 167,
+     "side": "call"
+    },
+    "builds": [
+     {
+      "k": 3680,
+      "side": "put",
+      "d": 4930,
+      "size": 100
+     },
+     {
+      "k": 4350,
+      "side": "call",
+      "d": 4833,
+      "size": 98
+     },
+     {
+      "k": 4250,
+      "side": "call",
+      "d": 451,
+      "size": 9
+     },
+     {
+      "k": 4500,
+      "side": "call",
+      "d": 401,
+      "size": 8
+     }
     ]
    },
    "straddle": {
@@ -102,6 +133,37 @@
       "oi": 4993,
       "d": -128,
       "rank": 3
+     }
+    ],
+    "flow": {
+     "dc": 409,
+     "dp": 46,
+     "side": "call"
+    },
+    "builds": [
+     {
+      "k": 3680,
+      "side": "put",
+      "d": 4930,
+      "size": 100
+     },
+     {
+      "k": 4350,
+      "side": "call",
+      "d": 4833,
+      "size": 98
+     },
+     {
+      "k": 4250,
+      "side": "call",
+      "d": 451,
+      "size": 9
+     },
+     {
+      "k": 4500,
+      "side": "call",
+      "d": 401,
+      "size": 8
      }
     ]
    }
@@ -160,7 +222,9 @@
       "d": null,
       "rank": 3
      }
-    ]
+    ],
+    "flow": null,
+    "builds": []
    },
    "straddle": {
     "mp": 4250,
@@ -207,7 +271,9 @@
       "d": null,
       "rank": 3
      }
-    ]
+    ],
+    "flow": null,
+    "builds": []
    }
   }
  },

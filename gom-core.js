@@ -61,11 +61,32 @@ function oiStats(rows,F,sig,emExp){
   /* Wall นับเฉพาะ strike ในกรอบ ±2 SD ถึงวันหมดอายุ ตัด strike ไกลมากที่ OI สูงแต่ไม่มีผลกับราคา (เช่น Call 20000) */
   var near=function(r){return Math.abs(r.k-F)<=2*emExp};
   return {mp:mp,pcr:tc>0?tp/tc:null,tc:tc,tp:tp,hasPrev:hasPrev,
-    callWalls:walls('c','pc',function(r){return r.k>=F&&near(r)}),putWalls:walls('p','pp',function(r){return r.k<=F&&near(r)})};
+    callWalls:walls('c','pc',function(r){return r.k>=F&&near(r)}),putWalls:walls('p','pp',function(r){return r.k<=F&&near(r)}),
+    flow:hasPrev?oiFlow(rows,F,sig):null,builds:hasPrev?oiBuilds(rows.filter(near)):[]};
+}
+
+/* ΔOI ในกรอบ F ± 1σ: ฝั่งที่ OI เพิ่มมากกว่า (และเพิ่มจริง) คือฝั่งที่ตลาดเปิดสถานะใหม่
+   side: 'call' | 'put' | 'none' (เพิ่มเท่ากัน หรือทั้งสองฝั่งลดลง) */
+function oiFlow(rows,F,sig){
+  var dc=0,dp=0;
+  rows.forEach(function(r){if(Math.abs(r.k-F)<=sig){dc+=r.c-r.pc;dp+=r.p-r.pp}});
+  return {dc:dc,dp:dp,side:dc>dp&&dc>0?'call':dp>dc&&dp>0?'put':'none'};
+}
+/* 4 strike ที่ OI เปลี่ยนมากสุด (นับ Call กับ Put แยกกัน) size = ขนาดเทียบอันดับ 1 (100) */
+function oiBuilds(rows){
+  var ch=[];
+  rows.forEach(function(r){
+    if(r.c!==r.pc)ch.push({k:r.k,side:'call',d:r.c-r.pc});
+    if(r.p!==r.pp)ch.push({k:r.k,side:'put',d:r.p-r.pp});
+  });
+  ch.sort(function(a,b){return Math.abs(b.d)-Math.abs(a.d)||a.k-b.k});
+  ch=ch.slice(0,4);
+  var top=ch.length?Math.abs(ch[0].d):1;
+  return ch.map(function(b){return {k:b.k,side:b.side,d:b.d,size:Math.round(Math.abs(b.d)/top*100)}});
 }
 
 /* ---------- แผน ---------- */
-/* inp: F, basis, iv, dte, date, px, em, sd และ rows (ตาราง OI) หรือ stats (ผลจาก oiStats ที่คำนวณไว้แล้ว) */
+/* inp: F, basis, iv, dte, date, px, em, sd, biasSrc ('mp' | 'oi') และ rows (ตาราง OI) หรือ stats (ผลจาก oiStats ที่คำนวณไว้แล้ว) */
 function compute(inp){
   var F=inp.F, basis=inp.basis, iv=inp.iv/100;
   var x=function(v){return v-basis};
@@ -86,6 +107,17 @@ function compute(inp){
     if(pcr<0.7){score+=0.5;why.push('Put/Call '+pcr.toFixed(2)+' (Call OI มากกว่า Put ชัดเจน ตลาดเปิดสถานะฝั่งขึ้นมากกว่า)')}
     else if(pcr>1.3){score-=0.5;why.push('Put/Call '+pcr.toFixed(2)+' (Put OI มากกว่า Call ชัดเจน ตลาดป้องกันขาลงมากกว่า)')}
     else why.push('Put/Call '+pcr.toFixed(2)+' อยู่ในช่วงกลาง');
+  }
+  /* มุมมองจาก ΔOI (inp.biasSrc='oi'): ใช้แทนคะแนน Max Pain + Put/Call ซึ่งยังแสดงเป็นข้อมูลประกอบ
+     ไม่มี OI วันก่อน → กลับไปใช้ Max Pain + Put/Call */
+  var fl=st.flow||null, biasSrc='mp';
+  if(inp.biasSrc==='oi'){
+    if(fl){
+      biasSrc='oi';
+      score=fl.side==='call'?1:fl.side==='put'?-1:0;
+      why.unshift('ΔOI ในกรอบ 1SD: Call '+(fl.dc>=0?'+':'−')+fmt(Math.abs(fl.dc),0)+' · Put '+(fl.dp>=0?'+':'−')+fmt(Math.abs(fl.dp),0)+
+        (fl.side==='call'?' → Call เพิ่มมากกว่า ตลาดเปิดสถานะฝั่งขึ้น':fl.side==='put'?' → Put เพิ่มมากกว่า ตลาดเปิดสถานะฝั่งลง':' → ไม่มีฝั่งที่เพิ่มชัดเจน'));
+    } else why.unshift('ยังไม่มี OI วันก่อน มุมมองจึงใช้ Max Pain + Put/Call');
   }
   if(px>bands.sd1[1]) why.push('ราคาอยู่เหนือกรอบ 1SD แล้ว ถ้ายืนได้ให้ถือเป็น Breakout ขึ้น');
   else if(px<bands.sd1[0]) why.push('ราคาอยู่ใต้กรอบ 1SD แล้ว ถ้ายืนได้ให้ถือเป็น Breakdown');
@@ -137,7 +169,7 @@ function compute(inp){
   res.slice(0,2).forEach(function(c,i){zones.push(zone(c,'sell',i+1))});
 
   return {F:F,basis:basis,Fb:Fb,px:px,sig:sig,EM:EM,tdays:e.tdays,bands:bands,pcr:pcr,mp:mp,callWalls:callWalls,putWalls:putWalls,
-    bias:bias,why:why,levels:L,zones:zones,rows:inp.rows||[],hasPrev:st.hasPrev,iv:iv,dte:inp.dte,date:inp.date};
+    bias:bias,biasSrc:biasSrc,flow:fl,builds:st.builds||[],why:why,levels:L,zones:zones,rows:inp.rows||[],hasPrev:st.hasPrev,iv:iv,dte:inp.dte,date:inp.date};
 }
 
 /* เทียบกับแผนวันก่อน: Wall ที่ไม่อยู่ใน 3 อันดับของวันก่อนนับเป็น Wall ใหม่ */
@@ -179,7 +211,7 @@ function planLine(m,p,und){
   return one(m,'PLAN')+(p?' | '+one(p,'PREV'):'');
 }
 
-var GOM={fmt:fmt,parseOI:parseOI,parseMeta:parseMeta,emOf:emOf,oiStats:oiStats,compute:compute,compare:compare,planLine:planLine,futOf:futOf,nextOg:nextOg};
+var GOM={fmt:fmt,parseOI:parseOI,parseMeta:parseMeta,emOf:emOf,oiStats:oiStats,oiFlow:oiFlow,oiBuilds:oiBuilds,compute:compute,compare:compare,planLine:planLine,futOf:futOf,nextOg:nextOg};
 root.GOM=GOM;
 if(typeof module!=='undefined'&&module.exports) module.exports=GOM;
 })(typeof window!=='undefined'?window:globalThis);

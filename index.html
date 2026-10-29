@@ -135,6 +135,7 @@ details.prev table{margin-top:8px}
         <div class="field"><label for="fPx">ราคา XAUUSD ตอนนี้</label><input class="num" id="fPx" inputmode="decimal"></div>
         <div class="field"><label for="fEm">Expected Move รายวันจาก</label><select id="fEm"><option value="iv">IV รายเดือน</option><option value="straddle">Straddle รายวัน</option></select></div>
         <div class="field"><label for="fSd">SD รายวัน (straddle)</label><input class="num" id="fSd" inputmode="decimal" placeholder="เช่น 33.6"></div>
+        <div class="field full"><label for="fBias">มุมมองจาก</label><select id="fBias"><option value="mp">Max Pain + Put/Call</option><option value="oi">ΔOI ในกรอบ 1SD (ต้องมี OI วันก่อน)</option></select></div>
         <div class="field full">
           <label for="fOi">Open Interest ต่อ strike: strike, Call OI, Put OI</label>
           <textarea id="fOi" spellcheck="false"></textarea>
@@ -194,6 +195,10 @@ details.prev table{margin-top:8px}
         </div>
         <svg id="chart" role="img" aria-label="กราฟ Open Interest และระดับราคา"></svg>
         <ul class="reasons" id="reasons"></ul>
+        <div id="chgBox" hidden>
+          <p class="hint" id="chgHead"></p>
+          <ul class="reasons" id="chgList"></ul>
+        </div>
       </section>
 
       <section class="panel">
@@ -281,7 +286,7 @@ var BIAS={up:['▲','ขาขึ้น'],down:['▼','ขาลง'],flat:['◆
 function renderStats(m){
   var pv=m.prev;
   var s=[
-    ['มุมมอง','<span class="bias '+m.bias+'">'+BIAS[m.bias][0]+' '+BIAS[m.bias][1]+'</span>','จาก Max Pain และ Put/Call'],
+    ['มุมมอง','<span class="bias '+m.bias+'">'+BIAS[m.bias][0]+' '+BIAS[m.bias][1]+'</span>',m.biasSrc==='oi'?'จาก ΔOI ในกรอบ 1SD':'จาก Max Pain และ Put/Call'],
     ['ราคา'+(eu()==='xau'?' XAUUSD':' (เทียบ GC)'),P(m.px),'Settle '+P(m.Fb)],
     ['Expected Move'+(m.EM.src==='straddle'?' (straddle)':' (IV)'),'±'+fmt(m.EM.day,1),'สัปดาห์ ±'+fmt(m.EM.week,1)+' · หมดอายุ ±'+fmt(m.EM.exp,1)],
     ['Max Pain',m.mp===null?'—':P(m.mp-m.basis),'strike '+fmt(m.mp,0)+(pv&&pv.mp!==null&&m.mp!==null?' · วันก่อน '+fmt(pv.mp,0)+(pv.mp!==m.mp?' ('+D(m.mp-pv.mp)+')':''):'')],
@@ -293,6 +298,16 @@ function renderStats(m){
   if(m.callWalls.length)why.push('Call Wall: '+wl(m.callWalls)+(m.hasPrev?' (OI · เปลี่ยนจากวันก่อน)':''));
   if(m.putWalls.length)why.push('Put Wall: '+wl(m.putWalls));
   $('reasons').innerHTML=why.map(function(t){return '<li>'+t+'</li>'}).join('');
+  /* อะไรเปลี่ยนจากวันก่อน: เพิ่ม = สถานะเปิดใหม่ ลด = สถานะปิด · ขนาดเทียบอันดับ 1 */
+  var b=m.builds||[];
+  $('chgBox').hidden=!b.length;
+  if(b.length){
+    var sz=function(s){return s>=70?'มาก':s>=35?'ปานกลาง':'เล็กน้อย'};
+    $('chgHead').innerHTML='<b>อะไรเปลี่ยนจากวันก่อน</b>'+(m.prev?' · settle '+m.date+' เทียบ '+m.prev.date:'')+' (strike ในกรอบ ±2 SD ถึงวันหมดอายุ)';
+    $('chgList').innerHTML=b.map(function(x){
+      return '<li><span class="side '+(x.side==='call'?'sell':'buy')+'">'+(x.side==='call'?'Call':'Put')+'</span> <span class="num">'+fmt(x.k,0)+'</span> '+D(x.d)+' · '+(x.d>0?'สถานะเปิดใหม่':'สถานะปิด')+' · '+sz(x.size)+'</li>';
+    }).join('');
+  }
 }
 
 function planRows(m){
@@ -446,8 +461,8 @@ function render(){
 }
 
 /* ---------- ฟอร์ม ---------- */
-function fill(d){$('fF').value=d.F;$('fBasis').value=d.basis;$('fIv').value=d.iv;$('fDte').value=d.dte;$('fDate').value=d.date||'';$('fPx').value=d.px;$('fEm').value=d.em||'iv';$('fSd').value=d.sd||'';$('fOi').value=d.oi||''}
-function read(){return {F:$('fF').value,basis:$('fBasis').value,iv:$('fIv').value,dte:$('fDte').value,date:$('fDate').value,px:$('fPx').value,em:$('fEm').value,sd:$('fSd').value,oi:$('fOi').value}}
+function fill(d){$('fF').value=d.F;$('fBasis').value=d.basis;$('fIv').value=d.iv;$('fDte').value=d.dte;$('fDate').value=d.date||'';$('fPx').value=d.px;$('fEm').value=d.em||'iv';$('fSd').value=d.sd||'';$('fBias').value=d.bias||'mp';$('fOi').value=d.oi||''}
+function read(){return {F:$('fF').value,basis:$('fBasis').value,iv:$('fIv').value,dte:$('fDte').value,date:$('fDate').value,px:$('fPx').value,em:$('fEm').value,sd:$('fSd').value,bias:$('fBias').value,oi:$('fOi').value}}
 /* src: 'sample' | 'feed' | 'manual' */
 function setSrc(src){
   var t=$('srcTag');t.hidden=false;t.className='tag'+(src==='sample'?' sample':'');
@@ -455,7 +470,7 @@ function setSrc(src){
 }
 function run(src){
   var d=read(), err=$('err'), n=function(s){return parseFloat(String(s).replace(/,/g,''))};
-  var inp={F:n(d.F),basis:n(d.basis)||0,iv:n(d.iv),dte:n(d.dte),date:d.date,px:n(d.px),em:d.em,sd:n(d.sd),rows:parseOI(d.oi)};
+  var inp={F:n(d.F),basis:n(d.basis)||0,iv:n(d.iv),dte:n(d.dte),date:d.date,px:n(d.px),em:d.em,sd:n(d.sd),biasSrc:d.bias,rows:parseOI(d.oi)};
   /* ไม่มีตาราง OI แต่วันตรงกับ feed: ใช้ผลที่คำนวณไว้แล้วใน feed */
   var useFeed=!inp.rows.length&&feed&&d.date===feed.today.date;
   if(useFeed)inp.stats=feed.today.stats[inp.em==='straddle'?'straddle':'iv'];
@@ -466,7 +481,7 @@ function run(src){
   /* แผนวันก่อน: ราคาอ้างอิง = Settle ของวันนั้น ใช้ Basis และโหมด Expected Move เดียวกับวันนี้ */
   var pd=useFeed?feed.prev:(prevMeta&&last.hasPrev?prevMeta:null);
   if(pd){
-    var pinp={F:pd.settle,basis:inp.basis,iv:pd.iv,dte:pd.dte,date:pd.date,px:NaN,em:inp.em,sd:pd.sd_day};
+    var pinp={F:pd.settle,basis:inp.basis,iv:pd.iv,dte:pd.dte,date:pd.date,px:NaN,em:inp.em,sd:pd.sd_day,biasSrc:inp.biasSrc};
     if(useFeed)pinp.stats=pd.stats[inp.em==='straddle'?'straddle':'iv'];
     else pinp.rows=inp.rows.map(function(r){return {k:r.k,c:r.pc,p:r.pp}});
     if(!(inp.em==='straddle')||pinp.sd>0){lastPrev=compute(pinp);GOM.compare(last,lastPrev)}
@@ -481,6 +496,7 @@ $('form').addEventListener('submit',function(e){e.preventDefault();run()});
 $('bSample').addEventListener('click',function(){prevMeta=null;fileExtras=null;fill(sample());run('sample')});
 $('bFeed').addEventListener('click',function(){applyFeed(true)});
 $('fEm').addEventListener('change',function(){run($('srcTag').classList.contains('sample')?'sample':undefined)});
+$('fBias').addEventListener('change',function(){run($('srcTag').classList.contains('sample')?'sample':undefined)});
 /* ไฟล์จาก qs_to_map.py มีบรรทัด "# key=value" ด้านบน ใช้เติมช่องข้อมูลให้อัตโนมัติ */
 function applyMeta(txt){
   var map={settle:'fF',basis:'fBasis',iv:'fIv',dte:'fDte',trade_date:'fDate',price:'fPx',sd_day:'fSd'},meta=GOM.parseMeta(txt),n=0;
@@ -522,7 +538,7 @@ function fallback(txt){var ta=document.createElement('textarea');ta.value=txt;do
 function applyFeed(byUser){
   var t=feed.today, keep=read();
   prevMeta=null;
-  fill({F:t.settle.toFixed(2),basis:keep.basis,iv:t.iv,dte:t.dte,date:t.date,px:keep.date===t.date?keep.px:'',em:keep.em,sd:t.sd_day||'',oi:''});
+  fill({F:t.settle.toFixed(2),basis:keep.basis,iv:t.iv,dte:t.dte,date:t.date,px:keep.date===t.date?keep.px:'',em:keep.em,sd:t.sd_day||'',bias:keep.bias,oi:''});
   $('fOi').placeholder='ข้อมูลอัตโนมัติ: '+feed.underlying+' settle '+t.date+(feed.prev?' (+ วันก่อน '+feed.prev.date+')':'')+' ไม่เผยแพร่ OI ทุก strike วางตารางหรือเลือกไฟล์ถ้าต้องการแท่ง OI';
   run('feed');
   if(byUser)toast('ข้อมูลอัตโนมัติ settle '+t.date);
