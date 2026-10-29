@@ -201,6 +201,8 @@ function planLine(m,p,und){
     /* ปัด 6 ตำแหน่งก่อน: ค่าที่ลงท้าย .xx5 พอดีไม่ปัดต่างกันเพราะเศษทศนิยมจากการบวก/ลบ Basis */
     var f=function(v){return (+(v+m.basis).toFixed(6)).toFixed(2)}, pair=function(a){return f(a[0])+','+f(a[1])};
     var t=[tag,'d='+(m.date||''),'b='+{up:'U',down:'D',flat:'F'}[m.bias],'sd1='+pair(m.bands.sd1),'sd2='+pair(m.bands.sd2),'wk='+pair(m.bands.week)];
+    /* mo = Settle ± Expected Move ถึงวันหมดอายุ (กรอบรายเดือน) อินดิเคเตอร์รุ่นเก่าข้ามคีย์นี้ */
+    if(tag==='PLAN'&&m.EM&&isFinite(m.EM.exp))t.push('mo='+pair([m.Fb-m.EM.exp,m.Fb+m.EM.exp]));
     if(tag==='PLAN'&&fu)t.push('f='+fu.short);
     if(m.mp!==null)t.push('mp='+m.mp);
     if(m.callWalls.length)t.push('cw='+m.callWalls.map(function(w){return w.strike}).join(','));
