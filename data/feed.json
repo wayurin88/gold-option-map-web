@@ -305,58 +305,58 @@
     "realized_high"
    ]
   },
-  "touch_days": 26,
+  "touch_days": 27,
   "touch": {
    "1": {
     "card": 32,
     "theory": 32,
-    "hit": 15,
-    "sides": 52
+    "hit": 16,
+    "sides": 54
    },
    "2": {
     "card": 7,
     "theory": 5,
-    "hit": 3,
-    "sides": 52
+    "hit": 4,
+    "sides": 54
    },
    "0.5": {
     "card": 60,
     "theory": 62,
-    "hit": 34,
-    "sides": 52
+    "hit": 35,
+    "sides": 54
    },
    "0.68": {
     "card": 49,
     "theory": 50,
-    "hit": 29,
-    "sides": 52
+    "hit": 30,
+    "sides": 54
    }
   },
   "last_window": {
-   "settle_day": "2026-11-02",
-   "window_end": "2026-11-03",
-   "sd_day": 44.2,
-   "up_sd": 0.27,
-   "dn_sd": 1.48,
-   "range_sd": 1.76,
-   "close_sd": -0.67,
-   "first_1sd": "down",
+   "settle_day": "2026-11-03",
+   "window_end": "2026-11-04",
+   "sd_day": 54.2,
+   "up_sd": 2.6,
+   "dn_sd": 0.24,
+   "range_sd": 2.84,
+   "close_sd": 2.45,
+   "first_1sd": "up",
    "touched": {
     "1": [
-     false,
-     true
+     true,
+     false
     ],
     "2": [
-     false,
+     true,
      false
     ],
     "0.5": [
-     false,
-     true
+     true,
+     false
     ],
     "0.68": [
-     false,
-     true
+     true,
+     false
     ]
    }
   },
