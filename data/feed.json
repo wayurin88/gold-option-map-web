@@ -8,8 +8,8 @@
   "settle": 4074.9,
   "iv": 22.34,
   "dte": 19,
-  "sd_day": 52.1,
-  "sd_day_src": "OGZ6",
+  "sd_day": 55.2,
+  "sd_day_src": "G2MX6",
   "stats": {
    "iv": {
     "mp": 4200,
@@ -136,8 +136,8 @@
      }
     ],
     "flow": {
-     "dc": 298,
-     "dp": 182,
+     "dc": 302,
+     "dp": 178,
      "side": "call"
     },
     "builds": [
@@ -283,24 +283,24 @@
    {
     "name": "Asia",
     "hours": "05:00-14:00",
-    "sd": 28.4
+    "sd": 30.1
    },
    {
     "name": "London",
     "hours": "14:00-19:00",
-    "sd": 21.5
+    "sd": 22.8
    },
    {
     "name": "New York",
     "hours": "19:00-04:00",
-    "sd": 38
+    "sd": 40.3
    }
   ],
   "vol_card": {
    "rr": -1.59,
    "bf": 0.78,
+   "ts": 1.06,
    "flags": [
-    "sd_down",
     "realized_high"
    ]
   },
@@ -360,11 +360,11 @@
    }
   },
   "vol": {
-   "iv": 22.42,
-   "iv_chg": -0.09,
-   "short": null,
-   "iv_short": null,
-   "term": null
+   "iv": 22.47,
+   "iv_chg": -0.1,
+   "short": "G2MX6",
+   "iv_short": 17.31,
+   "term": -5.16
   },
   "hist": [
    {
@@ -464,8 +464,8 @@
    },
    {
     "d": "2026-11-06",
-    "iv": 22.42,
-    "sd": 52.1
+    "iv": 22.47,
+    "sd": 55.2
    }
   ]
  }
