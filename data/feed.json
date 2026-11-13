@@ -302,7 +302,8 @@
    "ts": 0.97,
    "flags": [
     "sd_up",
-    "iv_up"
+    "iv_up",
+    "realized_high"
    ]
   },
   "touch_days": 33,
