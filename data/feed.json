@@ -8,8 +8,8 @@
   "settle": 3886.2,
   "iv": 22.8,
   "dte": 12,
-  "sd_day": 51.7,
-  "sd_day_src": "OGZ6",
+  "sd_day": 52.6,
+  "sd_day_src": "G3MX6",
   "stats": {
    "iv": {
     "mp": 4190,
@@ -283,22 +283,23 @@
    {
     "name": "Asia",
     "hours": "05:00-14:00",
-    "sd": 28.2
+    "sd": 28.7
    },
    {
     "name": "London",
     "hours": "14:00-19:00",
-    "sd": 21.3
+    "sd": 21.7
    },
    {
     "name": "New York",
     "hours": "19:00-04:00",
-    "sd": 37.7
+    "sd": 38.4
    }
   ],
   "vol_card": {
    "rr": -2.09,
    "bf": 0.29,
+   "ts": 1.02,
    "flags": [
     "realized_high"
    ]
@@ -359,11 +360,11 @@
    }
   },
   "vol": {
-   "iv": 22.69,
+   "iv": 22.76,
    "iv_chg": -0.33,
-   "short": null,
-   "iv_short": null,
-   "term": null
+   "short": "G3MX6",
+   "iv_short": 17.33,
+   "term": -5.43
   },
   "hist": [
    {
@@ -463,8 +464,8 @@
    },
    {
     "d": "2026-11-13",
-    "iv": 22.69,
-    "sd": 51.7
+    "iv": 22.76,
+    "sd": 52.6
    }
   ]
  }
