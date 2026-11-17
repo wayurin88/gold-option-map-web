@@ -301,8 +301,7 @@
    "bf": 0.29,
    "ts": 0.91,
    "flags": [
-    "iv_up",
-    "realized_high"
+    "iv_up"
    ]
   },
   "touch_days": 35,
