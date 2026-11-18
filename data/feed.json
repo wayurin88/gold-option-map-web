@@ -304,41 +304,41 @@
     "iv_up"
    ]
   },
-  "touch_days": 35,
+  "touch_days": 36,
   "touch": {
    "1": {
     "card": 32,
     "theory": 32,
     "hit": 22,
-    "sides": 70
+    "sides": 72
    },
    "2": {
     "card": 7,
     "theory": 5,
     "hit": 5,
-    "sides": 70
+    "sides": 72
    },
    "0.5": {
     "card": 60,
     "theory": 62,
-    "hit": 45,
-    "sides": 70
+    "hit": 46,
+    "sides": 72
    },
    "0.68": {
     "card": 49,
     "theory": 50,
-    "hit": 40,
-    "sides": 70
+    "hit": 41,
+    "sides": 72
    }
   },
   "last_window": {
-   "settle_day": "2026-11-13",
-   "window_end": "2026-11-16",
-   "sd_day": 52.6,
-   "up_sd": 0.34,
-   "dn_sd": 0.97,
-   "range_sd": 1.31,
-   "close_sd": -0.65,
+   "settle_day": "2026-11-16",
+   "window_end": "2026-11-17",
+   "sd_day": 47.7,
+   "up_sd": 0.86,
+   "dn_sd": 0.29,
+   "range_sd": 1.15,
+   "close_sd": 0.24,
    "first_1sd": "none",
    "touched": {
     "1": [
@@ -350,12 +350,12 @@
      false
     ],
     "0.5": [
-     false,
-     true
+     true,
+     false
     ],
     "0.68": [
-     false,
-     true
+     true,
+     false
     ]
    }
   },
