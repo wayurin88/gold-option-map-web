@@ -4,6 +4,172 @@
  "underlying": "OGZ6",
  "expiration": "2026-11-24",
  "today": {
+  "date": "2026-11-18",
+  "settle": 3741.9,
+  "iv": 26.24,
+  "dte": 7,
+  "sd_day": 53.3,
+  "sd_day_src": "OG3X6",
+  "stats": {
+   "iv": {
+    "mp": 4100,
+    "pcr": 0.2714,
+    "tc": 384054,
+    "tp": 104223,
+    "hasPrev": true,
+    "callWalls": [
+     {
+      "strike": 4000,
+      "oi": 3225,
+      "d": -232,
+      "rank": 1
+     },
+     {
+      "strike": 3900,
+      "oi": 3014,
+      "d": 1471,
+      "rank": 2
+     },
+     {
+      "strike": 3940,
+      "oi": 1520,
+      "d": 1356,
+      "rank": 3
+     }
+    ],
+    "putWalls": [
+     {
+      "strike": 3700,
+      "oi": 6013,
+      "d": -57,
+      "rank": 1
+     },
+     {
+      "strike": 3500,
+      "oi": 4638,
+      "d": -531,
+      "rank": 2
+     },
+     {
+      "strike": 3600,
+      "oi": 1888,
+      "d": -97,
+      "rank": 3
+     }
+    ],
+    "flow": {
+     "dc": 1169,
+     "dp": -99,
+     "side": "call"
+    },
+    "builds": [
+     {
+      "k": 3950,
+      "side": "put",
+      "d": -1765,
+      "size": 100
+     },
+     {
+      "k": 3550,
+      "side": "put",
+      "d": -1591,
+      "size": 90
+     },
+     {
+      "k": 3900,
+      "side": "call",
+      "d": 1471,
+      "size": 83
+     },
+     {
+      "k": 3940,
+      "side": "call",
+      "d": 1356,
+      "size": 77
+     }
+    ]
+   },
+   "straddle": {
+    "mp": 4100,
+    "pcr": 0.2714,
+    "tc": 384054,
+    "tp": 104223,
+    "hasPrev": true,
+    "callWalls": [
+     {
+      "strike": 4000,
+      "oi": 3225,
+      "d": -232,
+      "rank": 1
+     },
+     {
+      "strike": 3900,
+      "oi": 3014,
+      "d": 1471,
+      "rank": 2
+     },
+     {
+      "strike": 3940,
+      "oi": 1520,
+      "d": 1356,
+      "rank": 3
+     }
+    ],
+    "putWalls": [
+     {
+      "strike": 3700,
+      "oi": 6013,
+      "d": -57,
+      "rank": 1
+     },
+     {
+      "strike": 3500,
+      "oi": 4638,
+      "d": -531,
+      "rank": 2
+     },
+     {
+      "strike": 3600,
+      "oi": 1888,
+      "d": -97,
+      "rank": 3
+     }
+    ],
+    "flow": {
+     "dc": 610,
+     "dp": -188,
+     "side": "call"
+    },
+    "builds": [
+     {
+      "k": 3950,
+      "side": "put",
+      "d": -1765,
+      "size": 100
+     },
+     {
+      "k": 3550,
+      "side": "put",
+      "d": -1591,
+      "size": 90
+     },
+     {
+      "k": 3900,
+      "side": "call",
+      "d": 1471,
+      "size": 83
+     },
+     {
+      "k": 3940,
+      "side": "call",
+      "d": 1356,
+      "size": 77
+     }
+    ]
+   }
+  }
+ },
+ "prev": {
   "date": "2026-11-17",
   "settle": 3864.2,
   "iv": 24.24,
@@ -16,189 +182,23 @@
     "pcr": 0.3015,
     "tc": 379682,
     "tp": 114490,
-    "hasPrev": true,
-    "callWalls": [
-     {
-      "strike": 4100,
-      "oi": 4412,
-      "d": 485,
-      "rank": 1
-     },
-     {
-      "strike": 4000,
-      "oi": 3457,
-      "d": 163,
-      "rank": 2
-     },
-     {
-      "strike": 4050,
-      "oi": 2327,
-      "d": 391,
-      "rank": 3
-     }
-    ],
-    "putWalls": [
-     {
-      "strike": 3700,
-      "oi": 6070,
-      "d": 30,
-      "rank": 1
-     },
-     {
-      "strike": 3800,
-      "oi": 2452,
-      "d": -111,
-      "rank": 2
-     },
-     {
-      "strike": 3850,
-      "oi": 2320,
-      "d": -14,
-      "rank": 3
-     }
-    ],
-    "flow": {
-     "dc": 657,
-     "dp": -1602,
-     "side": "call"
-    },
-    "builds": [
-     {
-      "k": 3900,
-      "side": "put",
-      "d": -1615,
-      "size": 100
-     },
-     {
-      "k": 4100,
-      "side": "call",
-      "d": 485,
-      "size": 30
-     },
-     {
-      "k": 4050,
-      "side": "call",
-      "d": 391,
-      "size": 24
-     },
-     {
-      "k": 3600,
-      "side": "put",
-      "d": -335,
-      "size": 21
-     }
-    ]
-   },
-   "straddle": {
-    "mp": 4150,
-    "pcr": 0.3015,
-    "tc": 379682,
-    "tp": 114490,
-    "hasPrev": true,
-    "callWalls": [
-     {
-      "strike": 4100,
-      "oi": 4412,
-      "d": 485,
-      "rank": 1
-     },
-     {
-      "strike": 4000,
-      "oi": 3457,
-      "d": 163,
-      "rank": 2
-     },
-     {
-      "strike": 4050,
-      "oi": 2327,
-      "d": 391,
-      "rank": 3
-     }
-    ],
-    "putWalls": [
-     {
-      "strike": 3700,
-      "oi": 6070,
-      "d": 30,
-      "rank": 1
-     },
-     {
-      "strike": 3800,
-      "oi": 2452,
-      "d": -111,
-      "rank": 2
-     },
-     {
-      "strike": 3850,
-      "oi": 2320,
-      "d": -14,
-      "rank": 3
-     }
-    ],
-    "flow": {
-     "dc": 656,
-     "dp": -1602,
-     "side": "call"
-    },
-    "builds": [
-     {
-      "k": 3900,
-      "side": "put",
-      "d": -1615,
-      "size": 100
-     },
-     {
-      "k": 4100,
-      "side": "call",
-      "d": 485,
-      "size": 30
-     },
-     {
-      "k": 4050,
-      "side": "call",
-      "d": 391,
-      "size": 24
-     },
-     {
-      "k": 3600,
-      "side": "put",
-      "d": -335,
-      "size": 21
-     }
-    ]
-   }
-  }
- },
- "prev": {
-  "date": "2026-11-16",
-  "settle": 3853,
-  "iv": 25.27,
-  "dte": 9,
-  "sd_day": 47.7,
-  "sd_day_src": "G3TX6",
-  "stats": {
-   "iv": {
-    "mp": 4175,
-    "pcr": 0.3123,
-    "tc": 377912,
-    "tp": 118037,
     "hasPrev": false,
     "callWalls": [
      {
       "strike": 4100,
-      "oi": 3927,
+      "oi": 4412,
       "d": null,
       "rank": 1
      },
      {
       "strike": 4000,
-      "oi": 3294,
+      "oi": 3457,
       "d": null,
       "rank": 2
      },
      {
-      "strike": 4150,
-      "oi": 2278,
+      "strike": 4050,
+      "oi": 2327,
       "d": null,
       "rank": 3
      }
@@ -206,19 +206,19 @@
     "putWalls": [
      {
       "strike": 3700,
-      "oi": 6040,
+      "oi": 6070,
       "d": null,
       "rank": 1
      },
      {
       "strike": 3800,
-      "oi": 2563,
+      "oi": 2452,
       "d": null,
       "rank": 2
      },
      {
       "strike": 3850,
-      "oi": 2334,
+      "oi": 2320,
       "d": null,
       "rank": 3
      }
@@ -227,27 +227,27 @@
     "builds": []
    },
    "straddle": {
-    "mp": 4175,
-    "pcr": 0.3123,
-    "tc": 377912,
-    "tp": 118037,
+    "mp": 4150,
+    "pcr": 0.3015,
+    "tc": 379682,
+    "tp": 114490,
     "hasPrev": false,
     "callWalls": [
      {
       "strike": 4100,
-      "oi": 3927,
+      "oi": 4412,
       "d": null,
       "rank": 1
      },
      {
       "strike": 4000,
-      "oi": 3294,
+      "oi": 3457,
       "d": null,
       "rank": 2
      },
      {
-      "strike": 4150,
-      "oi": 2278,
+      "strike": 4050,
+      "oi": 2327,
       "d": null,
       "rank": 3
      }
@@ -255,19 +255,19 @@
     "putWalls": [
      {
       "strike": 3700,
-      "oi": 6040,
+      "oi": 6070,
       "d": null,
       "rank": 1
      },
      {
       "strike": 3800,
-      "oi": 2563,
+      "oi": 2452,
       "d": null,
       "rank": 2
      },
      {
       "strike": 3850,
-      "oi": 2334,
+      "oi": 2320,
       "d": null,
       "rank": 3
      }
@@ -278,30 +278,30 @@
   }
  },
  "extras": {
-  "card_day": "2026-11-17",
+  "card_day": "2026-11-18",
   "sessions": [
    {
     "name": "Asia",
     "hours": "05:00-14:00",
-    "sd": 27.9
+    "sd": 29
    },
    {
     "name": "London",
     "hours": "14:00-19:00",
-    "sd": 21.1
+    "sd": 22
    },
    {
     "name": "New York",
     "hours": "19:00-04:00",
-    "sd": 37.4
+    "sd": 38.9
    }
   ],
   "vol_card": {
-   "rr": -0.68,
-   "bf": 0.41,
-   "ts": 1,
+   "rr": -2.54,
+   "bf": 0.54,
+   "ts": 0.96,
    "flags": [
-    "none"
+    "iv_up"
    ]
   },
   "touch_days": 37,
@@ -360,18 +360,13 @@
    }
   },
   "vol": {
-   "iv": 23.21,
-   "iv_chg": -0.26,
-   "short": "G3WX6",
-   "iv_short": 32.33,
-   "term": 9.12
+   "iv": 24.45,
+   "iv_chg": 0.62,
+   "short": "OG3X6",
+   "iv_short": 32.31,
+   "term": 7.86
   },
   "hist": [
-   {
-    "d": "2026-10-21",
-    "iv": 18.92,
-    "sd": 34.3
-   },
    {
     "d": "2026-10-22",
     "iv": 20.38,
@@ -466,6 +461,11 @@
     "d": "2026-11-17",
     "iv": 23.21,
     "sd": 51.2
+   },
+   {
+    "d": "2026-11-18",
+    "iv": 24.45,
+    "sd": 53.3
    }
   ]
  }
